@@ -57,6 +57,78 @@ class L1000Baseline(object):
         return s
     
 
+    def _makeCoordinateMap(self, layerName):
+        '''
+        Build the coordinate dictionary for all crystal places.
+
+        Parameters
+        ----------
+        lv : pg4.LogicalVolume
+            mother logical volume holding all crystals
+        templateName : string
+                      Name of logical volume to represent place name for crystals.
+
+        Returns
+        -------
+        store : dict
+               dictionary key: copy number; value: position vector [mm]
+
+        '''
+        ularLV = self.reg.logicalVolumeDict['ULArLV'] # all volumes in ULAr
+        store = {}
+        for pv in ularLV.daughterVolumes: # many daughters in ULar
+            if layerName in pv.name:
+                lpv = self.reg.physicalVolumeDict[pv.name]
+                llv = lpv.logicalVolume
+                for tpv in llv.daughterVolumes:
+                    if 'Template' in tpv.name:
+                        store[tpv.copyNumber] = tpv.position.eval() # key by copy number
+        print(store)
+        return store
+
+
+    def _placeCrystals(self, idealGe):
+        '''
+        Place the Germanium crystals in template slots.
+
+        Parameters
+        ----------
+        lv : pg4.LogicalVolume
+            mother logical volume holding all crystals
+        idealGe : bool
+            True: Use default idealized crystals.
+            False: Use realistic crystals from JSON files.
+
+        Returns
+        -------
+        None. Stores geometry in registry.
+
+        '''
+        # make ideal crystal template
+        placeholderRad    = 4.5   # [cm]
+        placeholderHeight = 11.0  # [cm]
+        geSolid = pg4.geant4.solid.Tubs("IGe", 0.0,
+                                        placeholderRad,
+                                        placeholderHeight,
+                                        0,2*np.pi,self.reg,"cm","rad")
+        geLV    = pg4.geant4.LogicalVolume(geSolid,
+                                           self.materials['enrGe'],
+                                           "IGeLV", self.reg)
+        layerName = 'Layer'
+        coordMap   = self._makeCoordinateMap(layerName)
+
+        templateLV = self.reg.logicalVolumeDict['TemplateLV'] # find placeholder LV
+        for nr, pos in enumerate(coordMap.values()):
+            pg4.geant4.PhysicalVolume([0,0,0],
+                                      pos,
+                                      geLV,
+                                      "GePV"+str(nr),
+                                      templateLV,
+                                      self.reg, 
+                                      nr) # with copy number
+
+
+
     def _buildWorld(self, lngs, templateGe, filled):
         '''
         Build the entire geometry using module objects, see imports.
@@ -126,6 +198,11 @@ class L1000Baseline(object):
         pg4.geant4.PhysicalVolume(zeros,onfloor,tankLV,"tankPV",
                                   cavernLV,self.reg)
         
+        # build the infrastructre inside cavern
+        if filled:   # only for a filled infrastructure
+            self._placeCrystals(templateGe)
+
+
 
     def drawGeometry(self):
         '''
