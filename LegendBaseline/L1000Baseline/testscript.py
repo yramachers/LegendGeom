@@ -16,3 +16,8 @@ for pv in ular.daughterVolumes: # is list of physical Volumes
     print('Name: ',pv.name,' copy number: ',pv.copyNumber)
     print('Position: ',pv.position.eval())
 
+lay = det.reg.logicalVolumeDict['LayerLV'] # all volumes in Layer
+for pv in lay.daughterVolumes: # is list of physical Volumes
+    print('Name: ',pv.name,' copy number: ',pv.copyNumber)
+    print('Position: ',pv.position.eval())
+

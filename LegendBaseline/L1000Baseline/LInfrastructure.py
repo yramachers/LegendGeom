@@ -31,10 +31,15 @@ class LTank(object):
         None.
 
         '''
+        # allow for independent construction
+        # BUT dependence on materials dictionary remains
         if reg is None:
             reg = pg4.geant4.Registry()
 
-        # build tank, switch for filled is input
+        # attribute for germanium placements
+        self.locStore = {}
+
+        # build tank, switch for filled
         self.tankLV = None
         self.buildTank(reg, materials, filled)
 
@@ -50,6 +55,19 @@ class LTank(object):
 
         '''
         return self.tankLV
+
+
+    def getDetLocMap(self):
+        '''
+        get hold of location map with positions of detector
+        placements.
+
+        Returns
+        -------
+        pg4.geant4.LogicalVolume
+
+        '''
+        return self.locStore
 
 
     def buildTank(self, reg, materials, filled):
@@ -222,8 +240,6 @@ class LTank(object):
         placeholderHeight = 13.0 # [cm] cylinder height for Ge+holder
         gap               = 3.0  # [cm] gap between placeholders on string
         layerthickness    = gap + placeholderHeight
-        topph             = [0.0, 0.0, 10*placeholderHeight/2] # cm2mm
-        botph             = [0.0, 0.0, -10*gap/2] # cm2mm
 
         # insert structures
         copperSolid = pg4.geant4.solid.Tubs("Copper", cuRad-copper,
@@ -241,7 +257,8 @@ class LTank(object):
         ularLV    = pg4.geant4.LogicalVolume(ularSolid,
                                              materials['LAr'],
                                              "ULArLV", reg)
-        # Layers for place holders
+
+        # Layers as place holders for detectors
         layerSolid = pg4.geant4.solid.Tubs("Layer", 0.0,
                                             placeholderRad,
                                             layerthickness,
@@ -249,28 +266,9 @@ class LTank(object):
         layerLV    = pg4.geant4.LogicalVolume(layerSolid,
                                               materials['LAr'],
                                               "LayerLV", reg)
-        # insert gap on top and place holder template volume at bottom
-        # in layer
-        gapSolid   = pg4.geant4.solid.Tubs("Gap", 0.0,
-                                            placeholderRad,
-                                            gap,
-                                            0,2*pi,reg,"cm","rad")
-        gapLV      = pg4.geant4.LogicalVolume(gapSolid,
-                                              materials['LAr'],
-                                              "GapLV", reg)
-        pg4.geant4.PhysicalVolume(zeros,topph,gapLV,"GapPV",
-                                  layerLV,reg)
-        templateSolid = pg4.geant4.solid.Tubs("Template", 0.0,
-                                              placeholderRad,
-                                              placeholderHeight,
-                                              0,2*pi,reg,"cm","rad")
-        templateLV   = pg4.geant4.LogicalVolume(templateSolid,
-                                                materials['LAr'],
-                                                "TemplateLV", reg)
-        pg4.geant4.PhysicalVolume(zeros,botph,templateLV,"TemplatePV",
-                                  layerLV,reg)
         
         # make layers and strings in ULAr
+        localStore = {}
         step  = 10*layerthickness/2 # cm2mm
         angle = pi / nofStrings
         for j in range(nofStrings):
@@ -278,10 +276,10 @@ class LTank(object):
             ypos = 10*stringRad * sin(j*angle) # cm2mm
             ltmm = layerthickness*10           # cm2mm
             for i in range(nofLayers):
+                zpos = -step + nofLayers/2 * ltmm - i*ltmm
+                localStore[i+j*nofLayers] = [xpos,ypos,zpos]
                 pg4.geant4.PhysicalVolume(zeros,
-                                          [xpos,ypos,
-                                           -step + nofLayers/2*ltmm
-                                           -i*ltmm],
+                                          [xpos,ypos,zpos],
                                           layerLV,
                                           "LayerPV"+str(i+j*nofLayers),
                                           ularLV,
@@ -290,30 +288,43 @@ class LTank(object):
 
         # place the copper inserts
         # tower 0
-        pg4.geant4.PhysicalVolume(zeros,[10*ringRad, 0.0, 10*cushift],
+        pos1 = [10*ringRad, 0.0, 10*cushift]
+        pg4.geant4.PhysicalVolume(zeros, pos1,
                                   copperLV,"CopperPV",
                                   self.larLV,reg,0)
-        pg4.geant4.PhysicalVolume(zeros,[10*ringRad, 0.0, 10*cushift],
+        pg4.geant4.PhysicalVolume(zeros,pos1,
                                   ularLV,"ULArPV",
                                   self.larLV,reg,0)
         # tower 1
-        pg4.geant4.PhysicalVolume(zeros,[0.0, 10*ringRad, 10*cushift],
+        pos2 = [0.0, 10*ringRad, 10*cushift]
+        pg4.geant4.PhysicalVolume(zeros,pos2,
                                   copperLV,"CopperPV2",
                                   self.larLV,reg,1)
-        pg4.geant4.PhysicalVolume(zeros,[0.0, 10*ringRad,10*cushift],
+        pg4.geant4.PhysicalVolume(zeros,pos2,
                                   ularLV,"ULArPV2",
                                   self.larLV,reg,1)
         # tower 2
-        pg4.geant4.PhysicalVolume(zeros,[-10*ringRad, 0.0, 10*cushift],
+        pos3 = [-10*ringRad, 0.0, 10*cushift]
+        pg4.geant4.PhysicalVolume(zeros,pos3,
                                   copperLV,"CopperPV3",
                                   self.larLV,reg,2)
-        pg4.geant4.PhysicalVolume(zeros,[-10*ringRad, 0.0, 10*cushift],
+        pg4.geant4.PhysicalVolume(zeros,pos3,
                                   ularLV,"ULArPV3",
                                   self.larLV,reg,2)
         # tower 3
-        pg4.geant4.PhysicalVolume(zeros,[0.0, -10*ringRad, 10*cushift],
+        pos4 = [0.0, -10*ringRad, 10*cushift]
+        pg4.geant4.PhysicalVolume(zeros,pos4,
                                   copperLV,"CopperPV4",
                                   self.larLV,reg,3)
-        pg4.geant4.PhysicalVolume(zeros,[0.0, -10*ringRad, 10*cushift],
+        pg4.geant4.PhysicalVolume(zeros,pos4,
                                   ularLV,"ULArPV4",
                                   self.larLV,reg,3)
+
+        # transform placeholder locations from local to global
+        maxid = len(localStore)
+        trsf = [pos1,pos2,pos3,pos4]
+        for tower, vec in enumerate(trsf): # hard-coded four towers as above
+            for k,v in localStore.items():
+                key = (tower+1,tower*maxid+k) # tower number and copy number
+                val = [a+b for a,b in zip(localStore[k],vec)]
+                self.locStore[key] = val
