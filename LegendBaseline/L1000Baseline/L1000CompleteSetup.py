@@ -57,6 +57,51 @@ class L1000Baseline(object):
         return s
     
 
+
+    def _placeCrystals(self, coordMap, idealGe):
+        '''
+        Place the Germanium crystals in template slots.
+
+        Parameters
+        ----------
+        coordMap : dict
+                 dictionary of detector locations;
+                 key by tuple tower number from 1 and copy number
+        idealGe : bool
+                True: Use default idealized crystals.
+                False: Use realistic crystals from JSON files.
+
+        Returns
+        -------
+        None. Stores geometry in registry.
+
+        '''
+        if idealGe:
+            # make ideal crystal template
+            placeholderRad    = 4.5   # [cm]
+            placeholderHeight = 11.0  # [cm]
+            geSolid = pg4.geant4.solid.Tubs("IGe", 0.0,
+                                            placeholderRad,
+                                            placeholderHeight,
+                                            0,2*np.pi,self.reg,"cm","rad")
+            geLV    = pg4.geant4.LogicalVolume(geSolid,
+                                               self.materials['enrGe'],
+                                               "IGeLV", self.reg)
+ 
+            layerLV = self.reg.logicalVolumeDict['LayerLV'] # placeholder LV
+            for k, pos in coordMap.items():
+                pg4.geant4.PhysicalVolume([0,0,0],
+                                          pos,
+                                          geLV,
+                                          "GePV"+str(k[1]),
+                                          layerLV,
+                                          self.reg, 
+                                          k[1]) # with copy number
+            return
+        else:
+            pass
+        
+
     def _buildWorld(self, lngs, templateGe, filled):
         '''
         Build the entire geometry using module objects, see imports.
@@ -118,14 +163,25 @@ class L1000Baseline(object):
         # build the infrastructre inside cavern
         ltank = LTank(self.reg, self.materials, filled) # false = not filled
         tankLV = ltank.getTankLV()
-        tankHeight = ltank.height # attribute of tank
+        tankHeight = ltank.height / 100 # [m] attribute of tank
+        tempMap = ltank.getDetLocMap()
         
         # place the tank in cavern
         shift = -(cavernHeight-tankHeight)/2 # shift down to floor
         onfloor = [0.0, 0.0, shift*m2mm] # default units [mm]
         pg4.geant4.PhysicalVolume(zeros,onfloor,tankLV,"tankPV",
                                   cavernLV,self.reg)
+        # transform local to global
+        locMap = {}
+        for k,v in tempMap.items():
+            val = [a+b for a,b in zip(tempMap[k],onfloor)]
+            locMap[k] = val
         
+        # build the infrastructre inside cavern
+        if filled:   # only for a filled infrastructure
+            self._placeCrystals(locMap, templateGe)
+
+
 
     def drawGeometry(self):
         '''
