@@ -287,15 +287,15 @@ class LTank(object):
                                           i+j*nofLayers) # with copy number
 
         # place the copper inserts
-        # tower 0
+        # tower 1
         pos1 = [10*ringRad, 0.0, 10*cushift]
         pg4.geant4.PhysicalVolume(zeros, pos1,
-                                  copperLV,"CopperPV",
+                                  copperLV,"CopperPV1",
                                   self.larLV,reg,0)
         pg4.geant4.PhysicalVolume(zeros,pos1,
-                                  ularLV,"ULArPV",
+                                  ularLV,"ULArPV1",
                                   self.larLV,reg,0)
-        # tower 1
+        # tower 2
         pos2 = [0.0, 10*ringRad, 10*cushift]
         pg4.geant4.PhysicalVolume(zeros,pos2,
                                   copperLV,"CopperPV2",
@@ -303,7 +303,7 @@ class LTank(object):
         pg4.geant4.PhysicalVolume(zeros,pos2,
                                   ularLV,"ULArPV2",
                                   self.larLV,reg,1)
-        # tower 2
+        # tower 3
         pos3 = [-10*ringRad, 0.0, 10*cushift]
         pg4.geant4.PhysicalVolume(zeros,pos3,
                                   copperLV,"CopperPV3",
@@ -311,7 +311,7 @@ class LTank(object):
         pg4.geant4.PhysicalVolume(zeros,pos3,
                                   ularLV,"ULArPV3",
                                   self.larLV,reg,2)
-        # tower 3
+        # tower 4
         pos4 = [0.0, -10*ringRad, 10*cushift]
         pg4.geant4.PhysicalVolume(zeros,pos4,
                                   copperLV,"CopperPV4",

@@ -163,7 +163,7 @@ class L1000Baseline(object):
         # build the infrastructre inside cavern
         ltank = LTank(self.reg, self.materials, filled) # false = not filled
         tankLV = ltank.getTankLV()
-        tankHeight = ltank.height # attribute of tank
+        tankHeight = ltank.height / 100 # [m] attribute of tank
         tempMap = ltank.getDetLocMap()
         
         # place the tank in cavern
