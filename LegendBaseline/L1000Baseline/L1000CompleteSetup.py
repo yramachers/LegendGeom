@@ -66,10 +66,12 @@ class L1000Baseline(object):
         ----------
         coordMap : dict
                  dictionary of detector locations;
-                 key by tuple tower number from 1 and copy number
+                 key by tuple (tower number, 
+                 string number, layer number and copy number)
         idealGe : bool
                 True: Use default idealized crystals.
                 False: Use realistic crystals from JSON files.
+                Copy number in coordMap key not required in this case.
 
         Returns
         -------
@@ -93,10 +95,10 @@ class L1000Baseline(object):
                 pg4.geant4.PhysicalVolume([0,0,0],
                                           pos,
                                           geLV,
-                                          "GePV"+str(k[1]),
+                                          "GePV"+str(k[3]),
                                           layerLV,
                                           self.reg, 
-                                          k[1]) # with copy number
+                                          k[3]) # with copy number
             return
         else:
             pass

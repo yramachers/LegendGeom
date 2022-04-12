@@ -277,7 +277,8 @@ class LTank(object):
             ltmm = layerthickness*10           # cm2mm
             for i in range(nofLayers):
                 zpos = -step + nofLayers/2 * ltmm - i*ltmm
-                localStore[i+j*nofLayers] = [xpos,ypos,zpos]
+                key = (j,i,i+j*nofLayers) # (string,layer,copynr) key
+                localStore[key] = [xpos,ypos,zpos]
                 pg4.geant4.PhysicalVolume(zeros,
                                           [xpos,ypos,zpos],
                                           layerLV,
@@ -325,6 +326,7 @@ class LTank(object):
         trsf = [pos1,pos2,pos3,pos4]
         for tower, vec in enumerate(trsf): # hard-coded four towers as above
             for k,v in localStore.items():
-                key = (tower+1,tower*maxid+k) # tower number and copy number
+                # (tower,string,layer,copynr) key
+                key = (tower,k[0],k[1],tower*maxid+k[2])
                 val = [a+b for a,b in zip(localStore[k],vec)]
                 self.locStore[key] = val
