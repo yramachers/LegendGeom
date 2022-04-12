@@ -66,10 +66,12 @@ class L1000Baseline(object):
         ----------
         coordMap : dict
                  dictionary of detector locations;
-                 key by tuple tower number from 1 and copy number
+                 key by tuple (tower number, 
+                 string number, layer number and copy number)
         idealGe : bool
                 True: Use default idealized crystals.
                 False: Use realistic crystals from JSON files.
+                Copy number in coordMap key not required in this case.
 
         Returns
         -------
@@ -93,14 +95,23 @@ class L1000Baseline(object):
                 pg4.geant4.PhysicalVolume([0,0,0],
                                           pos,
                                           geLV,
-                                          "GePV"+str(k[1]),
+                                          "GePV"+str(k[3]),
                                           layerLV,
                                           self.reg, 
-                                          k[1]) # with copy number
+                                          k[3]) # with copy number
             return
-        else:
-            pass
-        
+
+        # Place real crystals
+        placementMap = {}
+
+        # For real crystals, don't need copy number. 
+        # Unique crystals need to be placed.
+        # Transfer key to place ID key (tower,string,layer).
+        for k,v in coordMap.items():
+            key = (k[0],k[1],k[2])
+            placementMap[key] = v
+            
+
 
     def _buildWorld(self, lngs, templateGe, filled):
         '''
@@ -171,13 +182,14 @@ class L1000Baseline(object):
         onfloor = [0.0, 0.0, shift*m2mm] # default units [mm]
         pg4.geant4.PhysicalVolume(zeros,onfloor,tankLV,"tankPV",
                                   cavernLV,self.reg)
+
         # transform local to global
         locMap = {}
         for k,v in tempMap.items():
             val = [a+b for a,b in zip(tempMap[k],onfloor)]
             locMap[k] = val
         
-        # build the infrastructre inside cavern
+        # place the crystals
         if filled:   # only for a filled infrastructure
             self._placeCrystals(locMap, templateGe)
 
