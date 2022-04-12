@@ -100,9 +100,18 @@ class L1000Baseline(object):
                                           self.reg, 
                                           k[3]) # with copy number
             return
-        else:
-            pass
-        
+
+        # Place real crystals
+        placementMap = {}
+
+        # For real crystals, don't need copy number. 
+        # Unique crystals need to be placed.
+        # Transfer key to place ID key (tower,string,layer).
+        for k,v in coordMap.items():
+            key = (k[0],k[1],k[2])
+            placementMap[key] = v
+            
+
 
     def _buildWorld(self, lngs, templateGe, filled):
         '''
@@ -173,13 +182,14 @@ class L1000Baseline(object):
         onfloor = [0.0, 0.0, shift*m2mm] # default units [mm]
         pg4.geant4.PhysicalVolume(zeros,onfloor,tankLV,"tankPV",
                                   cavernLV,self.reg)
+
         # transform local to global
         locMap = {}
         for k,v in tempMap.items():
             val = [a+b for a,b in zip(tempMap[k],onfloor)]
             locMap[k] = val
         
-        # build the infrastructre inside cavern
+        # place the crystals
         if filled:   # only for a filled infrastructure
             self._placeCrystals(locMap, templateGe)
 
