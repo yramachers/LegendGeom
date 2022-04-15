@@ -8,11 +8,9 @@ class LTank(object):
     '''
     Define Legend Tank volume.
 
-    filled=True results in complete static structure construction,
-    including veto, cryostat, and other details of the infastructure.
     '''
     
-    def __init__(self, reg=None, materials={}, filled=False):
+    def __init__(self, reg=None, materials={}):
         '''
         Build materials dictionary
 
@@ -22,9 +20,6 @@ class LTank(object):
             if None, (almost, see next) standalone construction
         materials : dict
             predefined materials dictionary, required input.
-        filled : bool, optional
-            if False, construct Tank only,
-            else, construct all other static objects inside Tank
 
         Returns
         -------
@@ -39,15 +34,14 @@ class LTank(object):
         # attribute for germanium placements
         self.locStore = {}
 
-        # build tank, switch for filled
+        # build tank
         self.tankLV = None
-        self.buildTank(reg, materials, filled)
+        self.buildTank(reg, materials)
 
 
     def getTankLV(self):
         '''
-        get hold of tank logical volume, filled or not,
-        depends on bool in construction.
+        get hold of tank logical volume,
 
         Returns
         -------
@@ -70,10 +64,9 @@ class LTank(object):
         return self.locStore
 
 
-    def buildTank(self, reg, materials, filled):
+    def buildTank(self, reg, materials):
         '''
-        Build the experiment infrastructure, either just the tank
-        with water volume, or fully filled excluding crystals.
+        Build the experiment infrastructure, excluding crystals.
 
         Parameters
         ----------
@@ -81,8 +74,6 @@ class LTank(object):
             geometry storage registry from pyg4ometry.
         materials : dict
             dictionary of predefined materials.
-        filled : bool
-            decide on filled infrastructure or just tank+water volume.
 
         Returns
         -------
@@ -118,9 +109,8 @@ class LTank(object):
         pg4.geant4.PhysicalVolume(zeros,zeros,self.waterLV,"waterPV",
                                   self.tankLV,reg)
 
-        if filled:
-            self.buildCryostat(reg, materials)
-            self.buildCopperInserts(reg, materials)
+        self.buildCryostat(reg, materials)
+        self.buildCopperInserts(reg, materials)
             
     
     def buildCryostat(self, reg, materials):
@@ -208,11 +198,9 @@ class LTank(object):
     def buildCopperInserts(self, reg, materials):
         '''
         Build the copper inserts into the LAr volume.
-        Those are filled with layers, representing
-        place holders for Germanium assemblies, i.e.
-        physical volumes, called TemplatePV, that are meant
-        to hold crystal and holder, all placed and 
-        distinguished by copy number.
+        Arrange for placeholder coordinates which
+        determine locations for crystal placements
+        later.
 
         Parameters
         ----------
@@ -236,7 +224,6 @@ class LTank(object):
         stringRad = 30.0 # [cm] ring of strings
         nofLayers  = 8   # layers holding templates
         nofStrings = 12  # how many strings holding templates
-        placeholderRad    = 5.0  # [cm] place holder volume for Ge+holder
         placeholderHeight = 13.0 # [cm] cylinder height for Ge+holder
         gap               = 3.0  # [cm] gap between placeholders on string
         layerthickness    = gap + placeholderHeight
@@ -258,19 +245,11 @@ class LTank(object):
                                              materials['LAr'],
                                              "ULArLV", reg)
 
-        # Layers as place holders for detectors
-        layerSolid = pg4.geant4.solid.Tubs("Layer", 0.0,
-                                            placeholderRad,
-                                            layerthickness,
-                                            0,2*pi,reg,"cm","rad")
-        layerLV    = pg4.geant4.LogicalVolume(layerSolid,
-                                              materials['LAr'],
-                                              "LayerLV", reg)
         
-        # make layers and strings in ULAr
+        # make layer positions and strings in ULAr
         localStore = {}
         step  = 10*layerthickness/2 # cm2mm
-        angle = pi / nofStrings
+        angle = 2*pi / nofStrings
         for j in range(nofStrings):
             xpos = 10*stringRad * cos(j*angle) # cm2mm
             ypos = 10*stringRad * sin(j*angle) # cm2mm
@@ -279,13 +258,6 @@ class LTank(object):
                 zpos = -step + nofLayers/2 * ltmm - i*ltmm
                 key = (j,i,i+j*nofLayers) # (string,layer,copynr) key
                 localStore[key] = [xpos,ypos,zpos]
-                pg4.geant4.PhysicalVolume(zeros,
-                                          [xpos,ypos,zpos],
-                                          layerLV,
-                                          "LayerPV"+str(i+j*nofLayers),
-                                          ularLV,
-                                          reg, 
-                                          i+j*nofLayers) # with copy number
 
         # place the copper inserts
         # tower 1

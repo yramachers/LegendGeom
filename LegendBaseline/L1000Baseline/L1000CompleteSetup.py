@@ -16,7 +16,7 @@ from LegendBaseline.L1000Baseline.LInfrastructure import LTank
 
 class L1000Baseline(object):
     
-    def __init__(self, hallA=True, templateGe=True, filled = False):
+    def __init__(self, hallA=True, templateGe=True, filled=False):
         '''
         Construct L1000Baseline object and call world building.
 
@@ -28,7 +28,7 @@ class L1000Baseline(object):
             Use ideal crystals (true) or
             realistic crystals from JSON files. The default is True.
         filled : bool, optional
-            Build fully filled infrastructure or tank with water only.
+            Build fully filled infrastructure or without crystals.
 
         Returns
         -------
@@ -90,13 +90,14 @@ class L1000Baseline(object):
                                                self.materials['enrGe'],
                                                "IGeLV", self.reg)
  
-            layerLV = self.reg.logicalVolumeDict['LayerLV'] # placeholder LV
+            ularLV = self.reg.logicalVolumeDict['ULArLV']
             for k, pos in coordMap.items():
+                # place in the correct tower
                 pg4.geant4.PhysicalVolume([0,0,0],
                                           pos,
                                           geLV,
                                           "GePV"+str(k[3]),
-                                          layerLV,
+                                          ularLV,
                                           self.reg, 
                                           k[3]) # with copy number
             return
@@ -125,7 +126,7 @@ class L1000Baseline(object):
             True: Use default idealized crystals.
             False: Use realistic crystals from JSON files.
         filled : bool, optional
-            Build fully filled infrastructure or tank with water only.
+            Build fully filled infrastructure or without crystals.
 
         Returns
         -------
@@ -172,7 +173,7 @@ class L1000Baseline(object):
         cavernHeight = wheight - rock
 
         # build the infrastructre inside cavern
-        ltank = LTank(self.reg, self.materials, filled) # false = not filled
+        ltank = LTank(self.reg, self.materials)
         tankLV = ltank.getTankLV()
         tankHeight = ltank.height / 100 # [m] attribute of tank
         tempMap = ltank.getDetLocMap()
@@ -198,9 +199,12 @@ class L1000Baseline(object):
     def drawGeometry(self):
         '''
         Draw the geometry held in the World volume.
+        Improve/standardize colour scheme
         '''
-        v = pg4.visualisation.VtkViewer()
+        v = pg4.visualisation.VtkViewerColoured(defaultColour='random')
         v.addLogicalVolume(self.worldLV)
+        v.setWireframe()
+        v.addAxes(length=1000.0) # 1 m axes
         v.view()
 
 
