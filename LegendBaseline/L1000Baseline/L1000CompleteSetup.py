@@ -43,7 +43,6 @@ class L1000Baseline(object):
 
         # dictionary of materials
         lm = LMaterials(self.reg)
-        lm.defineMaterials(self.reg)
         lm.PrintAll()
         self.materials = lm.getMaterialsDict()
         

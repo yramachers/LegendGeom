@@ -22,8 +22,8 @@ class LMaterials(object):
         None.
 
         '''
-        # self.defineMaterials(reg)
         self.store = {}
+        self.defineMaterials(reg)
         
 
     def getMaterialsDict(self):
@@ -76,26 +76,26 @@ class LMaterials(object):
             reg = pg4.geant4.Registry()
              
         # add predefined materials first - convenience
-        vac    = pg4.geant4.MaterialPredefined("G4_Galactic")
+        vac    = pg4.geant4.MaterialPredefined("G4_Galactic",reg)
         self.store['vacuum'] = vac
-        air    = pg4.geant4.MaterialPredefined("G4_AIR")
+        air    = pg4.geant4.MaterialPredefined("G4_AIR",reg)
         self.store['air'] = air
-        water  = pg4.geant4.MaterialPredefined("G4_WATER")
+        water  = pg4.geant4.MaterialPredefined("G4_WATER",reg)
         self.store['water'] = water
-        lar    = pg4.geant4.MaterialPredefined("G4_lAr")
+        lar    = pg4.geant4.MaterialPredefined("G4_lAr",reg)
         self.store['LAr'] = lar
-        steel  = pg4.geant4.MaterialPredefined("G4_STAINLESS-STEEL")
+        steel  = pg4.geant4.MaterialPredefined("G4_STAINLESS-STEEL",reg)
         self.store['steel'] = steel
-        copper = pg4.geant4.MaterialPredefined("G4_Cu")
+        copper = pg4.geant4.MaterialPredefined("G4_Cu",reg)
         self.store['Cu'] = copper
 
         # compound materials
-        hydrogen   = pg4.geant4.MaterialPredefined("G4_H")
-        carbon     = pg4.geant4.MaterialPredefined("G4_C")
-        oxygen     = pg4.geant4.MaterialPredefined("G4_O")
-        nitrogen   = pg4.geant4.MaterialPredefined("G4_N")
-        calcium    = pg4.geant4.MaterialPredefined("G4_Ca")
-        magnesium  = pg4.geant4.MaterialPredefined("G4_Mg")
+        hydrogen   = pg4.geant4.MaterialPredefined("G4_H",reg)
+        carbon     = pg4.geant4.MaterialPredefined("G4_C",reg)
+        oxygen     = pg4.geant4.MaterialPredefined("G4_O",reg)
+        nitrogen   = pg4.geant4.MaterialPredefined("G4_N",reg)
+        calcium    = pg4.geant4.MaterialPredefined("G4_Ca",reg)
+        magnesium  = pg4.geant4.MaterialPredefined("G4_Mg",reg)
 
         rock = pg4.geant4.MaterialCompound("stdrock", 2.65, 4, reg)
         rock.add_material(oxygen, 0.52)
