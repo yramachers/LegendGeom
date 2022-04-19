@@ -5,18 +5,19 @@ Build the complete setup of the baseline L1000 experiment.
 """
 
 # Third-party imports
-import numpy as np
+from math import pi
+import csv
 import pyg4ometry as pg4
 
 # Our imports
-# from LegendBaseline.coaxialTemplate import icpc
+from LegendBaseline.coaxialTemplate import icpc
 from LegendBaseline.L1000Baseline.LMaterials import LMaterials
 from LegendBaseline.L1000Baseline.LInfrastructure import LTank
 
 
 class L1000Baseline(object):
     
-    def __init__(self, hallA=True, templateGe=True, filled=False):
+    def __init__(self, hallA=True, filled=False, detConfigFile=''):
         '''
         Construct L1000Baseline object and call world building.
 
@@ -24,11 +25,14 @@ class L1000Baseline(object):
         ----------
         hallA : bool, optional
             Choose LNGS lab (true) or SNOLab. The default is True.
-        templateGe : bool, optional
-            Use ideal crystals (true) or
-            realistic crystals from JSON files. The default is True.
         filled : bool, optional
             Build fully filled infrastructure or without crystals.
+        detConfigFile : str, optional file name
+            Depends on filled boolean, only filled geometry places
+            crystals.
+            Use ideal crystals (default) or
+            realistic crystals from JSON files. This case requires
+            a configuration file as input, assumed CSV for now.
 
         Returns
         -------
@@ -47,7 +51,7 @@ class L1000Baseline(object):
         self.materials = lm.getMaterialsDict()
         
         # build the geometry
-        self._buildWorld(hallA, templateGe, filled)
+        self._buildWorld(hallA, filled, detConfigFile)
 
 
     def __repr__(self):
@@ -57,7 +61,7 @@ class L1000Baseline(object):
     
 
 
-    def _placeCrystals(self, coordMap, idealGe):
+    def _placeCrystals(self, coordMap, detConfigFile):
         '''
         Place the Germanium crystals in template slots.
 
@@ -67,24 +71,27 @@ class L1000Baseline(object):
                  dictionary of detector locations;
                  key by tuple (tower number, 
                  string number, layer number and copy number)
-        idealGe : bool
-                True: Use default idealized crystals.
-                False: Use realistic crystals from JSON files.
-                Copy number in coordMap key not required in this case.
+        detConfigFile : str, optional file name
+            Depends on filled boolean, only filled geometry places
+            crystals.
+            Use ideal crystals (default) or
+            realistic crystals from JSON files. This case requires
+            a configuration file as input, assumed CSV for now.
+            Copy number in coordMap key not required in this case.
 
         Returns
         -------
         None. Stores geometry in registry.
 
         '''
-        if idealGe:
+        if detConfigFile == '':  # empty file name (default)
             # make ideal crystal template
             placeholderRad    = 4.5   # [cm]
             placeholderHeight = 11.0  # [cm]
             geSolid = pg4.geant4.solid.Tubs("IGe", 0.0,
                                             placeholderRad,
                                             placeholderHeight,
-                                            0,2*np.pi,self.reg,"cm","rad")
+                                            0,2*pi,self.reg,"cm","rad")
             geLV    = pg4.geant4.LogicalVolume(geSolid,
                                                self.materials['enrGe'],
                                                "IGeLV", self.reg)
@@ -111,9 +118,48 @@ class L1000Baseline(object):
             key = (k[0],k[1],k[2])
             placementMap[key] = v
             
+        placementlist = []
+        namelist = []
+        LVlist = []
+        with open(detConfigFile, newline='') as f:
+            reader = csv.DictReader(f)
+            try:
+                for row in reader:
+                    # get the placement key from configuration
+                    placementlist.append((int(row['tower']),
+                                          int(row['string']),
+                                          int(row['layer'])))
+                    # store ID name
+                    namelist.append(row['detName'])
+
+                    jsonfilename = row['filename']
+                    idname       = row['detName']
+                    det = icpc.detICPC(jsonfilename, idname, 
+                                       self.reg, self.materials)
+                    # store LV's
+                    LVlist.append(det.getCrystalLV())
+                    
+            except csv.Error as e:
+                print('file {}, line {}: {}'.format(detConfigFile,
+                                                    reader.line_num, 
+                                                    e))
+                return
+
+        # now place the crystals individually
+        ularLV = self.reg.logicalVolumeDict['ULArLV']                
+
+        for pos, tag, lv in zip(placementlist, namelist, LVlist):
+            if lv is not None:
+                pg4.geant4.PhysicalVolume([0,0,0],
+                                          placementMap[pos],
+                                          lv,
+                                          "GePV-"+tag,
+                                          ularLV,
+                                          self.reg)
 
 
-    def _buildWorld(self, lngs, templateGe, filled):
+                                        
+    def _buildWorld(self, lngs, filled, detConfigFile):
         '''
         Build the entire geometry using module objects, see imports.
 
@@ -121,11 +167,14 @@ class L1000Baseline(object):
         ----------
         hallA : bool, optional
             Choose LNGS lab (true) or SNOLab. The default is True.
-        templateGe : bool
-            True: Use default idealized crystals.
-            False: Use realistic crystals from JSON files.
         filled : bool, optional
             Build fully filled infrastructure or without crystals.
+        detConfigFile : str, optional file name
+            Depends on filled boolean, only filled geometry places
+            crystals.
+            Use ideal crystals (default) or
+            realistic crystals from JSON files. This case requires
+            a configuration file as input, assumed CSV for now.
 
         Returns
         -------
@@ -155,10 +204,10 @@ class L1000Baseline(object):
             wheight = 19.0 # for a 17 m full hall height
             worldSolid = pg4.geant4.solid.Tubs("ws",zeroRad,outerRad,
                                                wheight,
-                                               0,2*np.pi,self.reg,"m","rad")
+                                               0,2*pi,self.reg,"m","rad")
             rockSolid  = pg4.geant4.solid.Tubs("rs",zeroRad,outerRad-rock,
                                                wheight-rock,
-                                               0,2*np.pi,self.reg,"m","rad")
+                                               0,2*pi,self.reg,"m","rad")
 
         self.worldLV = pg4.geant4.LogicalVolume(worldSolid,
                                                 self.materials['stdrock'],
@@ -191,7 +240,7 @@ class L1000Baseline(object):
         
         # place the crystals
         if filled:   # only for a filled infrastructure
-            self._placeCrystals(locMap, templateGe)
+            self._placeCrystals(locMap, detConfigFile)
 
 
 
