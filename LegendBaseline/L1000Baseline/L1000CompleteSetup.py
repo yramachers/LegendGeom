@@ -114,28 +114,31 @@ class L1000Baseline(object):
         # For real crystals, don't need copy number. 
         # Unique crystals need to be placed.
         # Transfer key to place ID key (tower,string,layer).
+        # tower 0..3, string 0..11, layer 0..7 currently
         for k,v in coordMap.items():
             key = (k[0],k[1],k[2])
             placementMap[key] = v
             
         placementlist = []
-        namelist = []
-        LVlist = []
+        namelist      = []
+        LVlist        = []
         with open(detConfigFile, newline='') as f:
-            reader = csv.DictReader(f)
+            reader = csv.DictReader(f) # this handles csv with header
             try:
                 for row in reader:
                     # get the placement key from configuration
                     placementlist.append((int(row['tower']),
                                           int(row['string']),
                                           int(row['layer'])))
-                    # store ID name
-                    namelist.append(row['detName'])
 
+                    # get JSON file name from config file.
                     jsonfilename = row['filename']
-                    idname       = row['detName']
-                    det = icpc.detICPC(jsonfilename, idname, 
+                    det = icpc.detICPC(jsonfilename,
                                        self.reg, self.materials)
+
+                    # store detector name from JSON file
+                    namelist.append(det.getName())
+                    
                     # store LV's
                     LVlist.append(det.getCrystalLV())
                     
@@ -147,7 +150,6 @@ class L1000Baseline(object):
 
         # now place the crystals individually
         ularLV = self.reg.logicalVolumeDict['ULArLV']                
-
         for pos, tag, lv in zip(placementlist, namelist, LVlist):
             if lv is not None:
                 pg4.geant4.PhysicalVolume([0,0,0],

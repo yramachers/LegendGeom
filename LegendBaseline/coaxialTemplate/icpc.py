@@ -11,7 +11,7 @@ import json
 
 class detICPC(object):
     
-    def __init__(self, jsonfile, idname, reg=None, materials={}):
+    def __init__(self, jsonfile, reg=None, materials={}):
         '''
         Create ICPC detector logical volume (LV).
 
@@ -19,8 +19,6 @@ class detICPC(object):
         ----------
         jsonfile : str
             JSON input file name describing crystal shape.
-        idname : str
-            Detector name used as logical volume ID name.
         reg : pg4.geant4.Registry, optional
             if None, (almost, see next) standalone construction
         materials : dict
@@ -39,9 +37,11 @@ class detICPC(object):
 
         # read, then build the geometry
         self.crystalLV = None
+        self.detname = ''
+
         jsondict = self._readFromFile(jsonfile)
         if jsondict is not None:
-            self.crystalLV = self._buildCrystal(jsondict, idname, 
+            self.crystalLV = self._buildCrystal(jsondict,
                                                 reg, materials)
 
 
@@ -61,7 +61,20 @@ class detICPC(object):
             Fully constructed LV of ICPC detector.
 
         '''
-        return self.crystalLV()
+        return self.crystalLV
+    
+
+    def getName(self):
+        '''
+        Access to detector name from JSON file.
+
+        Returns
+        -------
+        name : str
+            Detector name string.
+
+        '''
+        return self.detname
     
 
     def _readFromFile(self, jsonfile):
@@ -82,12 +95,13 @@ class detICPC(object):
         try:
             with open(jsonfile) as jfile:
                 data = json.load(jfile)
+                self.detname = data['det_name'] # get name first
         except:
             print ('Error parsing JSON file.')
             return None
-        return data
+        return data['geometry'] # only geometry data is of interest here
     
 
-    def _buildCrystal(dataDict, idname, reg, materials):
+    def _buildCrystal(dataDict, reg, materials):
         # build shape, generic polycone, and logical volume
         pass

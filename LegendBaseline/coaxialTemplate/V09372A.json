@@ -1,0 +1,118 @@
+{
+  "det_name": "V09372A",
+  "det_type": "icpc",
+  "production": {
+    "manufacturer": "Mirion",
+    "order": 9,
+    "serialno": "P50372A",
+    "crystal": "372",
+    "slice": "A",
+    "enrichment": 0,
+    "reprocessing": "no",
+    "dep_voltage_in_V": 4000,
+    "rec_voltage_in_V": 4500,
+    "impcc": {
+      "array": {
+        "value_in_1e9e/cm3": [
+          8,
+          9,
+          14,
+          23
+        ],
+        "dist_from_contact_in_mm": [
+          0,
+          50,
+          100,
+          121
+        ]
+      },
+      "function_pars": {
+        "z0_in_1e10e/cm3": 0,
+        "gradient_in_1e10e/cm4": 0,
+        "quadratic_in_1e10e/cm5": 0
+      }
+    },
+    "delivered": "XX-XX-2021"
+  },
+  "geometry": {
+    "mass_in_g": 4046,
+    "height_in_mm": 111.8,
+    "radius_in_mm": 46,
+    "bottom_cyl": {
+      "radius_in_mm": 0,
+      "height_in_mm": 0,
+      "transition_in_mm": 0
+    },
+    "bulletization": {
+      "top_radius_in_mm": 0,
+      "bottom_radius_in_mm": 0,
+      "well_radius_in_mm": 0,
+      "contact_radius_in_mm": 0
+    },
+    "well": {
+      "gap_in_mm": 32.8,
+      "radius_in_mm": 4
+    },
+    "groove": {
+      "outer_radius_in_mm": 15,
+      "depth_in_mm": 2,
+      "width_in_mm": 3
+    },
+    "contact": {
+      "radius_in_mm": 12,
+      "depth_in_mm": 0
+    },
+    "taper": {
+      "top": {
+        "inner": {
+          "angle_in_deg": 4.8,
+          "height_in_mm": 60
+        },
+        "outer": {
+          "angle_in_deg": 0,
+          "height_in_mm": 0
+        }
+      },
+      "bottom": {
+        "outer": {
+          "angle_in_deg": 0,
+          "height_in_mm": 0
+        }
+      }
+    },
+    "topgroove": {
+      "radius_in_mm": 0,
+      "depth_in_mm": 0
+    },
+    "crack": {
+      "radius_in_mm": 0,
+      "height_in_mm": 0
+    },
+    "dl_thickness_in_mm": 0
+  },
+  "characterization": {
+    "manufacturer": {
+      "dep_voltage_in_V": 4000,
+      "op_voltage_in_V": 4500,
+      "57co_fep_res_in_keV": 0.735,
+      "60co_fep_res_in_keV": 1.94,
+      "dl_thickness_in_mm": 0.8
+    },
+    "l200_site": {
+      "data": "/lfs/l1/legend/detector_char/enr/hades/char_data/V09372A",
+      "daq": "FlashCam",
+      "elog": "https://elog.legend-exp.org/site/?Det.+ID=V09372A",
+      "res": {
+        "cofep_in_keV": 1.84,
+        "qbb_in_keV": 2.22,
+        "tlfep_in_keV": 2.45
+      },
+      "sf": {
+        "tldep_in_pc": 90.0,
+        "qbb_in_pc": 29.7,
+        "tlsep_in_pc": 4.9,
+        "tlfep_in_pc": 6.9
+      }
+    }
+  }
+}
