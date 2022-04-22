@@ -3,6 +3,7 @@ Build the inverted coaxial point contact crystal
 template.
 
 """
+from math import pi
 
 # Third-party imports
 import pyg4ometry as pg4
@@ -102,6 +103,34 @@ class detICPC(object):
         return data['geometry'] # only geometry data is of interest here
     
 
-    def _buildCrystal(dataDict, reg, materials):
-        # build shape, generic polycone, and logical volume
+    def _decodePolycone(self, dataDict):
         pass
+
+
+    def _buildCrystal(self, dataDict, reg, materials):
+        '''
+        Internal: build the crystal from JSON data dict.
+
+        Parameters
+        ----------
+        dataDict : dict
+                dictionary data describing crystal shape.
+
+        Returns
+        -------
+        geLV : pg4.geant4.LogicalVolume
+            the crystal logical volume; placement in main code.
+
+        '''
+        # return ordered r,z lists, default unit [mm]
+        rlist, zlist = self._decodePolycone(dataDict)
+
+        # build generic polycone, and logical volume, default [mm]
+        geSolid = pg4.geant4.solid.GenericPolycone("Ge", 0, 2*pi,
+                                                   rlist,
+                                                   zlist,
+                                                   reg)
+        geLV    = pg4.geant4.LogicalVolume(geSolid,
+                                           materials['enrGe'],
+                                           "GeLV", reg)
+        return geLV
