@@ -3,11 +3,12 @@ Build the inverted coaxial point contact crystal
 template.
 
 """
-from math import pi
+from math import pi, tan
+import numpy as np
+import json
 
 # Third-party imports
 import pyg4ometry as pg4
-import json
 
 
 class detICPC(object):
@@ -103,8 +104,98 @@ class detICPC(object):
         return data['geometry'] # only geometry data is of interest here
     
 
-    def _decodePolycone(self, dataDict):
-        pass
+    def _decodePolycone(self, datadict):
+        '''
+        Decode shape information from JSON file as points
+        constructing a G4GenericPolycone.        
+
+        Parameters
+        ----------
+        datadict : dictionary
+            Dictionary extracted from JSON file,
+            containing crystal shape information.
+
+        Returns
+        -------
+        2 lists of r and z coordinates, respectively.
+
+        '''
+        rlist = []
+        zlist = []
+        # extract values
+        det_h = datadict['height_in_mm']
+        det_r = datadict['radius_in_mm']
+        # well
+        welldata      = datadict['well']
+        wgap = welldata['gap_in_mm']
+        wrad = welldata['radius_in_mm']
+        # first point
+        rlist.append(wrad)
+        zlist.append(det_h-wgap)
+        
+        # groove
+        groovedata    = datadict['groove']
+        grad = groovedata['outer_radius_in_mm']
+        gdepth = groovedata['depth_in_mm']
+        gwidth = groovedata['width_in_mm']
+    
+        # taper top
+        tapertopdata  = datadict['taper']['top']
+        tinner = tapertopdata['inner']
+        alpha = tinner['angle_in_deg']
+        tinheight = tinner['height_in_mm']
+        tstepinner = tinheight * tan(np.deg2rad(alpha))
+        if tinheight>0: # inner taper exists
+            rlist.append(wrad)
+            zlist.append(det_h-tinheight)
+            rlist.append(wrad+tstepinner)
+            zlist.append(0)
+        else:
+            rlist.append(wrad)
+            zlist.append(0)
+            
+        touter = tapertopdata['outer']
+        alpha = touter['angle_in_deg']
+        toutheight = touter['height_in_mm']
+        tstepouter = toutheight * tan(np.deg2rad(alpha))
+        if toutheight>0: # outer taper exists
+            rlist.append(det_r-tstepouter)
+            zlist.append(0)
+            rlist.append(det_r)
+            zlist.append(toutheight)
+        else:
+            rlist.append(det_r)
+            zlist.append(0)
+            
+        taperbotdata  = datadict['taper']['bottom']
+        touter = taperbotdata['outer']
+        alpha = touter['angle_in_deg']
+        toutheight = touter['height_in_mm']
+        tstepouter = toutheight * tan(np.deg2rad(alpha))
+        if toutheight>0: # bottom taper exists
+            rlist.append(det_r)
+            zlist.append(det_h-toutheight)
+            rlist.append(det_r-tstepouter)
+            zlist.append(det_h)
+        else:
+            rlist.append(det_r)
+            zlist.append(det_h)
+        
+        # walk rest of shape
+        rlist.append(grad)
+        zlist.append(det_h)
+        rlist.append(grad)
+        zlist.append(det_h-gdepth)
+        rlist.append(grad-gwidth)
+        zlist.append(det_h-gdepth)
+        rlist.append(grad-gwidth)
+        zlist.append(det_h)
+        rlist.append(0)
+        zlist.append(det_h)
+        rlist.append(0)
+        zlist.append(det_h-wgap)
+        
+        return rlist, zlist
 
 
     def _buildCrystal(self, dataDict, reg, materials):
@@ -134,3 +225,14 @@ class detICPC(object):
                                            materials['enrGe'],
                                            "GeLV", reg)
         return geLV
+
+
+    def drawGeometry(self):
+        '''
+        Draw the geometry held in the World volume.
+        Improve/standardize colour scheme
+        '''
+        v = pg4.visualisation.VtkViewerColoured(defaultColour='random')
+        v.addLogicalVolume(self.crystalLV)
+        v.addAxes(length=100.0) # 10 cm axes
+        v.view()
