@@ -237,7 +237,7 @@ class L1000Baseline(object):
         # transform local to global
         locMap = {}
         for k,v in tempMap.items():
-            val = [a+b for a,b in zip(tempMap[k],onfloor)]
+            val = [a+b for a,b in zip(v,onfloor)]
             locMap[k] = val
         
         # place the crystals

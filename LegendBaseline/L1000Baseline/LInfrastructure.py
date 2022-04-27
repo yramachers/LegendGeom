@@ -316,5 +316,6 @@ class LTank(object):
             for k,v in localStore.items():
                 # (tower,string,layer,copynr) key
                 key = (tower,k[0],k[1],tower*maxid+k[2])
-                val = [a+b for a,b in zip(localStore[k],vec)]
+                val = [a+b for a,b in zip(v,vec)]
                 self.locStore[key] = val
+                
