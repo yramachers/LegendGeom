@@ -41,10 +41,15 @@ class detICPC(object):
         self.crystalLV = None
         self.detname = ''
 
+        # add auxiliary info: type, value
+        aux = pg4.gdml.Defines.Auxiliary("SensDet","GeDet",reg)
+
+        # build crystal, declare as detector
         jsondict = self._readFromFile(jsonfile)
         if jsondict is not None:
             self.crystalLV = self._buildCrystal(jsondict,
                                                 reg, materials)
+            self.crystalLV.addAuxiliaryInfo(aux)
 
 
     def __repr__(self):
