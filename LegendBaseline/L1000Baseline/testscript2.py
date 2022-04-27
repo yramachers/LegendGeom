@@ -4,7 +4,8 @@ test script
 #import pyg4ometry
 import L1000CompleteSetup as cs
 
-det = cs.L1000Baseline(filled=True,detConfigFile='detectorconfig.csv')
+#det = cs.L1000Baseline(filled=True,detConfigFile='detectorconfig.csv')
+det = cs.L1000Baseline(filled=True)
 
 print('All logical volumes:')
 print(det.reg.logicalVolumeDict.keys())
@@ -19,7 +20,7 @@ for pv in lay.daughterVolumes: # is list of physical Volumes
     print('Name: ',pv.name,' copy number: ',pv.copyNumber)
     print('Position: ',pv.position.eval())
 
-#det.drawGeometry() # draw all
+det.drawGeometry() # draw all
 
 # selective logical volume drawing
 #v = pyg4ometry.visualisation.VtkViewerColoured(defaultColour='random')

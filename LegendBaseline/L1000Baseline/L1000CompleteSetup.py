@@ -251,9 +251,10 @@ class L1000Baseline(object):
         Draw the geometry held in the World volume.
         Improve/standardize colour scheme
         '''
-        v = pg4.visualisation.VtkViewerColoured(defaultColour='random')
+        v = pg4.visualisation.VtkViewerColouredMaterial()
         v.addLogicalVolume(self.worldLV)
-        v.setWireframe()
+        v.setSurface()
+        v.setOpacity(0.5)
         v.addAxes(length=1000.0) # 1 m axes
         v.view()
 
