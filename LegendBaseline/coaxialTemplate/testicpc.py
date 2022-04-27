@@ -15,9 +15,11 @@ det = icpc.detICPC('V09372A.json',reg=reg,materials=materials)
 
 print(det.getName())
 
+det.drawGeometry()
+
 # plot the generic polycone data
-lv = det.getCrystalLV()
-rarr = np.array(lv.solid.pR)
-zarr = np.array(lv.solid.pZ)
-plt.plot(rarr,zarr,'-o')
-plt.show()
+#lv = det.getCrystalLV()
+#rarr = np.array(lv.solid.pR)
+#zarr = np.array(lv.solid.pZ)
+#plt.plot(rarr,zarr,'-o')
+#plt.show()

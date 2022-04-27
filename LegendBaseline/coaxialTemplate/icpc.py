@@ -239,5 +239,9 @@ class detICPC(object):
         '''
         v = pg4.visualisation.VtkViewerColoured(defaultColour='random')
         v.addLogicalVolume(self.crystalLV)
-        v.addAxes(length=100.0) # 10 cm axes
+        v.addAxes(length=200.0) # 20 cm axes
+        v.setSurface()
+        v.setOpacity(0.5)
         v.view()
+        #v.exportScreenShot('trialpic.png')
+        
