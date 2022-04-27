@@ -104,8 +104,7 @@ class L1000Baseline(object):
                                           geLV,
                                           "GePV"+str(k[3]),
                                           ularLV,
-                                          self.reg, 
-                                          k[3]) # with copy number
+                                          self.reg) # with copy number
             return
 
         # Place real crystals
