@@ -81,6 +81,9 @@ class LTank(object):
         method.
         
         '''
+        # add auxiliary info: type, value
+        aux = pg4.gdml.Defines.Auxiliary("SensDet","WaterDet",reg)
+
         zeros   = [0.0, 0.0, 0.0]
         tankwalltop    = 0.6 # 6 mm top wall thickness
         tankwallbottom = 0.8 # 8 mm bottom wall thickness
@@ -109,6 +112,10 @@ class LTank(object):
         pg4.geant4.PhysicalVolume(zeros,zeros,self.waterLV,"waterPV",
                                   self.tankLV,reg)
 
+        # declare as detector
+        self.waterLV.addAuxiliaryInfo(aux)
+
+        # build rest
         self.buildCryostat(reg, materials)
         self.buildCopperInserts(reg, materials)
             
@@ -129,6 +136,9 @@ class LTank(object):
         None.
 
         '''
+        # add auxiliary info: type, value
+        aux = pg4.gdml.Defines.Auxiliary("SensDet","LArDet",reg)
+
         zeros   = [0.0, 0.0, 0.0]
         cryowall = 3.0 # [cm]
         vacgap = 1.0   # [cm]
@@ -179,6 +189,8 @@ class LTank(object):
         self.larLV   = pg4.geant4.LogicalVolume(larSolid,
                                                 materials['LAr'],
                                                 "LArLV", reg)
+        # declare as detector
+        self.larLV.addAuxiliaryInfo(aux)
         
         # placements
         pg4.geant4.PhysicalVolume(zeros,zeros,cryoOuterLV,"CoutPV",
@@ -214,6 +226,9 @@ class LTank(object):
         None.
 
         '''
+        # add auxiliary info: type, value
+        aux = pg4.gdml.Defines.Auxiliary("SensDet","ULArDet",reg)
+
         zeros   = [0.0, 0.0, 0.0]
         copper = 0.35    # [cm]
         cuRad  = 40.0    # [cm]
@@ -244,7 +259,8 @@ class LTank(object):
         ularLV    = pg4.geant4.LogicalVolume(ularSolid,
                                              materials['LAr'],
                                              "ULArLV", reg)
-
+        # declare as detector
+        ularLV.addAuxiliaryInfo(aux)
         
         # make layer positions and strings in ULAr
         localStore = {}
@@ -300,5 +316,6 @@ class LTank(object):
             for k,v in localStore.items():
                 # (tower,string,layer,copynr) key
                 key = (tower,k[0],k[1],tower*maxid+k[2])
-                val = [a+b for a,b in zip(localStore[k],vec)]
+                val = [a+b for a,b in zip(v,vec)]
                 self.locStore[key] = val
+                
