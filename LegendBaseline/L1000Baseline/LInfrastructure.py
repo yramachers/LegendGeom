@@ -253,14 +253,6 @@ class LTank(object):
                                             cuHeight,
                                             0,2*pi,reg,"cm","rad")
         
-        copperLV  = pg4.geant4.LogicalVolume(copperSolid,
-                                             materials['Cu'],
-                                             "CopperLV", reg)
-        ularLV    = pg4.geant4.LogicalVolume(ularSolid,
-                                             materials['LAr'],
-                                             "ULArLV", reg)
-        # declare as detector
-        ularLV.addAuxiliaryInfo(aux)
         
         # make layer positions and strings in ULAr
         localStore = {}
@@ -276,43 +268,35 @@ class LTank(object):
                 localStore[key] = [xpos,ypos,zpos]
 
         # place the copper inserts
+        # tower 0
+        pos1 = [10*ringRad, 0.0, 10*cushift] # [mm]
         # tower 1
-        pos1 = [10*ringRad, 0.0, 10*cushift]
-        pg4.geant4.PhysicalVolume(zeros, pos1,
-                                  copperLV,"CopperPV1",
-                                  self.larLV,reg,0)
-        pg4.geant4.PhysicalVolume(zeros,pos1,
-                                  ularLV,"ULArPV1",
-                                  self.larLV,reg,0)
-        # tower 2
         pos2 = [0.0, 10*ringRad, 10*cushift]
-        pg4.geant4.PhysicalVolume(zeros,pos2,
-                                  copperLV,"CopperPV2",
-                                  self.larLV,reg,1)
-        pg4.geant4.PhysicalVolume(zeros,pos2,
-                                  ularLV,"ULArPV2",
-                                  self.larLV,reg,1)
-        # tower 3
+        # tower 2
         pos3 = [-10*ringRad, 0.0, 10*cushift]
-        pg4.geant4.PhysicalVolume(zeros,pos3,
-                                  copperLV,"CopperPV3",
-                                  self.larLV,reg,2)
-        pg4.geant4.PhysicalVolume(zeros,pos3,
-                                  ularLV,"ULArPV3",
-                                  self.larLV,reg,2)
-        # tower 4
+        # tower 3
         pos4 = [0.0, -10*ringRad, 10*cushift]
-        pg4.geant4.PhysicalVolume(zeros,pos4,
-                                  copperLV,"CopperPV4",
-                                  self.larLV,reg,3)
-        pg4.geant4.PhysicalVolume(zeros,pos4,
-                                  ularLV,"ULArPV4",
-                                  self.larLV,reg,3)
 
         # transform placeholder locations from local to global
         maxid = len(localStore)
         trsf = [pos1,pos2,pos3,pos4]
         for tower, vec in enumerate(trsf): # hard-coded four towers as above
+            label = str(tower)
+            copperLV  = pg4.geant4.LogicalVolume(copperSolid,
+                                                 materials['Cu'],
+                                                 "CopperLV"+label, reg)
+            ularLV    = pg4.geant4.LogicalVolume(ularSolid,
+                                                 materials['LAr'],
+                                                 "ULArLV"+label, reg)
+            # declare as detector
+            ularLV.addAuxiliaryInfo(aux)
+            # placement
+            pg4.geant4.PhysicalVolume(zeros, vec,
+                                      copperLV,"CopperPV"+label,
+                                      self.larLV,reg)
+            pg4.geant4.PhysicalVolume(zeros,vec,
+                                      ularLV,"ULArPV"+label,
+                                      self.larLV,reg)
             for k,v in localStore.items():
                 # (tower,string,layer,copynr) key
                 key = (tower,k[0],k[1],tower*maxid+k[2])

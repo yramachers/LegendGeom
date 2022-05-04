@@ -13,7 +13,7 @@ print('All physical volumes:')
 print(det.reg.physicalVolumeDict.keys())
 
 #lay = det.reg.logicalVolumeDict['cavernLV'] # all volumes in Cavern
-lay = det.reg.logicalVolumeDict['ULArLV'] # all volumes in ULAr
+lay = det.reg.logicalVolumeDict['ULArLV0'] # all volumes in ULAr
 #lay = det.reg.logicalVolumeDict['LArLV'] # all volumes in LAr
 for pv in lay.daughterVolumes: # is list of physical Volumes
     print('Name: ',pv.name,' copy number: ',pv.copyNumber)

@@ -96,15 +96,16 @@ class L1000Baseline(object):
                                                self.materials['enrGe'],
                                                "IGeLV", self.reg)
  
-            ularLV = self.reg.logicalVolumeDict['ULArLV']
             for k, pos in coordMap.items():
+                label = str(k[0])
+                ularLV = self.reg.logicalVolumeDict['ULArLV'+label]
                 # place in the correct tower
                 pg4.geant4.PhysicalVolume([0,0,0],
                                           pos,
                                           geLV,
                                           "GePV"+str(k[3]),
                                           ularLV,
-                                          self.reg) # with copy number
+                                          self.reg)
             return
 
         # Place real crystals
@@ -148,8 +149,9 @@ class L1000Baseline(object):
                 return
 
         # now place the crystals individually
-        ularLV = self.reg.logicalVolumeDict['ULArLV']                
         for pos, tag, lv in zip(placementlist, namelist, LVlist):
+            label = str(pos[0])
+            ularLV = self.reg.logicalVolumeDict['ULArLV'+label]                
             if lv is not None:
                 pg4.geant4.PhysicalVolume([0,0,0],
                                           placementMap[pos],
