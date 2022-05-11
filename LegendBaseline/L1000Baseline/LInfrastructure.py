@@ -258,12 +258,15 @@ class LTank(object):
         localStore = {}
         step  = 10*layerthickness/2 # cm2mm
         angle = 2*pi / nofStrings
+        zmin = 0
         for j in range(nofStrings):
             xpos = 10*stringRad * cos(j*angle) # cm2mm
             ypos = 10*stringRad * sin(j*angle) # cm2mm
             ltmm = layerthickness*10           # cm2mm
             for i in range(nofLayers):
                 zpos = -step + nofLayers/2 * ltmm - i*ltmm
+                if zpos<zmin:
+                    zmin=zpos
                 key = (j,i,i+j*nofLayers) # (string,layer,copynr) key
                 localStore[key] = [xpos,ypos,zpos]
 
@@ -277,9 +280,10 @@ class LTank(object):
         # tower 3
         pos4 = [0.0, -10*ringRad, 10*cushift]
 
-        # transform placeholder locations from local to global
+        # place towers
         maxid = len(localStore)
         trsf = [pos1,pos2,pos3,pos4]
+        zshift = 10*cuHeight/2+zmin-100 # 10 cm gap to bottom of copper
         for tower, vec in enumerate(trsf): # hard-coded four towers as above
             label = str(tower)
             copperLV  = pg4.geant4.LogicalVolume(copperSolid,
@@ -300,6 +304,6 @@ class LTank(object):
             for k,v in localStore.items():
                 # (tower,string,layer,copynr) key
                 key = (tower,k[0],k[1],tower*maxid+k[2])
-                val = [a+b for a,b in zip(v,vec)]
+                val = [v[0],v[1],v[2]-zshift] # compensate cushift in z
                 self.locStore[key] = val
                 

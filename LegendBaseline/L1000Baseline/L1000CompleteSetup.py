@@ -235,15 +235,9 @@ class L1000Baseline(object):
         pg4.geant4.PhysicalVolume(zeros,onfloor,tankLV,"tankPV",
                                   cavernLV,self.reg)
 
-        # transform local to global
-        locMap = {}
-        for k,v in tempMap.items():
-            val = [a+b for a,b in zip(v,onfloor)]
-            locMap[k] = val
-        
         # place the crystals
         if filled:   # only for a filled infrastructure
-            self._placeCrystals(locMap, detConfigFile)
+            self._placeCrystals(tempMap, detConfigFile)
 
 
 
