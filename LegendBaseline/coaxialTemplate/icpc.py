@@ -4,16 +4,19 @@ template.
 
 """
 from math import pi, tan
-import numpy as np
 import json
+import numpy as np
 
 # Third-party imports
 import pyg4ometry as pg4
 
 
-class detICPC(object):
-    
-    def __init__(self, jsonfile, reg=None, materials={}):
+class detICPC():
+    '''
+    Define ICPC Germanium template.
+    '''
+
+    def __init__(self, jsonfile, reg, materials):
         '''
         Create ICPC detector logical volume (LV).
 
@@ -69,7 +72,7 @@ class detICPC(object):
 
         '''
         return self.crystalLV
-    
+
 
     def getName(self):
         '''
@@ -82,7 +85,7 @@ class detICPC(object):
 
         '''
         return self.detname
-    
+
 
     def _readFromFile(self, jsonfile):
         '''
@@ -107,12 +110,12 @@ class detICPC(object):
             print ('Error parsing JSON file.')
             return None
         return data['geometry'] # only geometry data is of interest here
-    
+
 
     def _decodePolycone(self, datadict):
         '''
         Decode shape information from JSON file as points
-        constructing a G4GenericPolycone.        
+        constructing a G4GenericPolycone.
 
         Parameters
         ----------
@@ -137,13 +140,13 @@ class detICPC(object):
         # first point
         rlist.append(wrad)
         zlist.append(det_h-wgap)
-        
+
         # groove
         groovedata    = datadict['groove']
         grad = groovedata['outer_radius_in_mm']
         gdepth = groovedata['depth_in_mm']
         gwidth = groovedata['width_in_mm']
-    
+
         # taper top
         tapertopdata  = datadict['taper']['top']
         tinner = tapertopdata['inner']
@@ -158,7 +161,7 @@ class detICPC(object):
         else:
             rlist.append(wrad)
             zlist.append(0)
-            
+
         touter = tapertopdata['outer']
         alpha = touter['angle_in_deg']
         toutheight = touter['height_in_mm']
@@ -171,7 +174,7 @@ class detICPC(object):
         else:
             rlist.append(det_r)
             zlist.append(0)
-            
+
         taperbotdata  = datadict['taper']['bottom']
         touter = taperbotdata['outer']
         alpha = touter['angle_in_deg']
@@ -185,7 +188,7 @@ class detICPC(object):
         else:
             rlist.append(det_r)
             zlist.append(det_h)
-        
+
         # walk rest of shape
         rlist.append(grad)
         zlist.append(det_h)
@@ -199,7 +202,7 @@ class detICPC(object):
         zlist.append(det_h)
         rlist.append(0)
         zlist.append(det_h-wgap)
-        
+
         return rlist, zlist
 
 

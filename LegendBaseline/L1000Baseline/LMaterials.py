@@ -3,11 +3,11 @@ Build all materials for Legend Geometry structures.
 """
 import pyg4ometry as pg4
 
-class LMaterials(object):
+class LMaterials():
     '''
     Define all Legend Geometry materials.
     '''
-    
+
     def __init__(self, reg=None):
         '''
         Build materials dictionary
@@ -24,7 +24,7 @@ class LMaterials(object):
         '''
         self.store = {}
         self.defineMaterials(reg)
-        
+
 
     def getMaterialsDict(self):
         '''
@@ -74,7 +74,7 @@ class LMaterials(object):
         '''
         if reg is None:
             reg = pg4.geant4.Registry()
-             
+
         # add predefined materials first - convenience
         vac    = pg4.geant4.MaterialPredefined("G4_Galactic",reg)
         self.store['vacuum'] = vac
@@ -103,7 +103,7 @@ class LMaterials(object):
         rock.add_material(carbon, 0.12)
         rock.add_material(magnesium, 0.09)
         self.store['stdrock'] = rock
-        
+
         polyu = pg4.geant4.MaterialCompound("polyurethane", 0.3, 4, reg)
         polyu.add_material(hydrogen, 0.57)
         polyu.add_material(carbon, 0.29)

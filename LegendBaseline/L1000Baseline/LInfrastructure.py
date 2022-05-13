@@ -4,13 +4,13 @@ Build infrastructure objects for Legend Geometry.
 from math import pi, sin, cos
 import pyg4ometry as pg4
 
-class LTank(object):
+class LTank():
     '''
     Define Legend Tank volume.
 
     '''
-    
-    def __init__(self, reg=None, materials={}):
+
+    def __init__(self, reg, materials):
         '''
         Build materials dictionary
 
@@ -79,7 +79,7 @@ class LTank(object):
         -------
         None; but creates tank logical volume attribute for return
         method.
-        
+
         '''
         # add auxiliary info: type, value
         aux = pg4.gdml.Defines.Auxiliary("SensDet","WaterDet",reg)
@@ -92,7 +92,7 @@ class LTank(object):
 
         tankSolid  = pg4.geant4.solid.Cons("tank",0.0,
                                            innerRad+tankwallbottom,
-                                           0.0, 
+                                           0.0,
                                            innerRad+tankwalltop,
                                            self.height,
                                            0,2*pi,reg,"cm","rad")
@@ -116,10 +116,10 @@ class LTank(object):
         self.waterLV.addAuxiliaryInfo(aux)
 
         # build rest
-        self.buildCryostat(reg, materials)
-        self.buildCopperInserts(reg, materials)
-            
-    
+        larLV = self.buildCryostat(reg, materials)
+        self.buildCopperInserts(larLV, reg, materials)
+
+
     def buildCryostat(self, reg, materials):
         '''
         Build the cryostat and its liquid argon filling.
@@ -140,8 +140,8 @@ class LTank(object):
         aux = pg4.gdml.Defines.Auxiliary("SensDet","LArDet",reg)
 
         zeros   = [0.0, 0.0, 0.0]
-        cryowall = 3.0 # [cm]
-        vacgap = 1.0   # [cm]
+        cryowall = 0.5 # [cm]
+        vacgap = 0.25   # [cm]
         cryRad = 350.0 # [cm]
         cryHeight = 700.0 # [cm]
         lidshift = (cryHeight/2+cryowall/2)*10 # cm2mm factor
@@ -186,12 +186,12 @@ class LTank(object):
         botLV        = pg4.geant4.LogicalVolume(lidSolid,
                                                 materials['steel'],
                                                 "BotLV", reg)
-        self.larLV   = pg4.geant4.LogicalVolume(larSolid,
+        larLV   = pg4.geant4.LogicalVolume(larSolid,
                                                 materials['LAr'],
                                                 "LArLV", reg)
         # declare as detector
-        self.larLV.addAuxiliaryInfo(aux)
-        
+        larLV.addAuxiliaryInfo(aux)
+
         # placements
         pg4.geant4.PhysicalVolume(zeros,zeros,cryoOuterLV,"CoutPV",
                                   self.waterLV,reg)
@@ -203,11 +203,12 @@ class LTank(object):
                                   self.waterLV,reg)
         pg4.geant4.PhysicalVolume(zeros,botPos,botLV,"BotPV",
                                   self.waterLV,reg)
-        pg4.geant4.PhysicalVolume(zeros,zeros,self.larLV,"LArPV",
+        pg4.geant4.PhysicalVolume(zeros,zeros,larLV,"LArPV",
                                   cryoInnerLV,reg)
-        
-    
-    def buildCopperInserts(self, reg, materials):
+        return larLV
+
+
+    def buildCopperInserts(self, larLV, reg, materials):
         '''
         Build the copper inserts into the LAr volume.
         Arrange for placeholder coordinates which
@@ -230,15 +231,16 @@ class LTank(object):
         aux = pg4.gdml.Defines.Auxiliary("SensDet","ULArDet",reg)
 
         zeros   = [0.0, 0.0, 0.0]
-        copper = 0.35    # [cm]
-        cuRad  = 40.0    # [cm]
+        copper = 0.1    # [cm]
+        cuRad  = 45.5    # [cm]
         cuHeight = 400.0 # [cm]
         cushift  = 150.0 # [cm] shift copper tubes inside cryostat
         ringRad  = 100.0 # [cm] copper inserts in cryostat
         # inside the copper insert
-        stringRad = 30.0 # [cm] ring of strings
+        stringRad = 34.0 # [cm] ring of strings
+        innerRing = 13.5 # [cm] inner strings 13 and 14
         nofLayers  = 8   # layers holding templates
-        nofStrings = 12  # how many strings holding templates
+        nofStrings = 12  # outer ring strings holding templates
         placeholderHeight = 13.0 # [cm] cylinder height for Ge+holder
         gap               = 3.0  # [cm] gap between placeholders on string
         layerthickness    = gap + placeholderHeight
@@ -252,14 +254,14 @@ class LTank(object):
                                             cuRad-copper,
                                             cuHeight,
                                             0,2*pi,reg,"cm","rad")
-        
-        
+
+
         # make layer positions and strings in ULAr
         localStore = {}
         step  = 10*layerthickness/2 # cm2mm
         angle = 2*pi / nofStrings
         zmin = 0
-        for j in range(nofStrings):
+        for j in range(nofStrings): # outer ring, 12 strings
             xpos = 10*stringRad * cos(j*angle) # cm2mm
             ypos = 10*stringRad * sin(j*angle) # cm2mm
             ltmm = layerthickness*10           # cm2mm
@@ -267,6 +269,14 @@ class LTank(object):
                 zpos = -step + nofLayers/2 * ltmm - i*ltmm
                 if zpos<zmin:
                     zmin=zpos
+                key = (j,i,i+j*nofLayers) # (string,layer,copynr) key
+                localStore[key] = [xpos,ypos,zpos]
+        # strings 13 and 14
+        for j in [12,13]:
+            for i in range(nofLayers):
+                xpos = 0   # place on x-axis
+                ypos = 10*innerRing * cos((j-12)*pi)
+                zpos = -step + nofLayers/2 * ltmm - i*ltmm
                 key = (j,i,i+j*nofLayers) # (string,layer,copynr) key
                 localStore[key] = [xpos,ypos,zpos]
 
@@ -297,13 +307,12 @@ class LTank(object):
             # placement
             pg4.geant4.PhysicalVolume(zeros, vec,
                                       copperLV,"CopperPV"+label,
-                                      self.larLV,reg)
+                                      larLV,reg)
             pg4.geant4.PhysicalVolume(zeros,vec,
                                       ularLV,"ULArPV"+label,
-                                      self.larLV,reg)
+                                      larLV,reg)
             for k,v in localStore.items():
                 # (tower,string,layer,copynr) key
                 key = (tower,k[0],k[1],tower*maxid+k[2])
-                val = [v[0],v[1],v[2]-zshift] # compensate cushift in z
+                val = [v[0],v[1],v[2]-zshift] # shift strings to bottom
                 self.locStore[key] = val
-                

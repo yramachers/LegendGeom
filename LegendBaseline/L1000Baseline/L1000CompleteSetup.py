@@ -15,8 +15,11 @@ from LegendBaseline.L1000Baseline.LMaterials import LMaterials
 from LegendBaseline.L1000Baseline.LInfrastructure import LTank
 
 
-class L1000Baseline(object):
-    
+class L1000Baseline():
+    '''
+    Define (simplified) Legend 1000 Baseline setup.
+    '''
+
     def __init__(self, hallA=True, filled=False, detConfigFile=''):
         '''
         Construct L1000Baseline object and call world building.
@@ -37,7 +40,7 @@ class L1000Baseline(object):
         Returns
         -------
         None.
-        
+
         After construction, drawGeometry() or writeGDML()
         or continue with the stored pyg4ometry registry (self.reg).
 
@@ -49,7 +52,7 @@ class L1000Baseline(object):
         lm = LMaterials(self.reg)
         lm.PrintAll()
         self.materials = lm.getMaterialsDict()
-        
+
         # build the geometry
         self._buildWorld(hallA, filled, detConfigFile)
 
@@ -58,7 +61,7 @@ class L1000Baseline(object):
         ''' Print the object purpose. '''
         s = "L1000 baseline object: build the complete setup.\n"
         return s
-    
+
 
 
     def _placeCrystals(self, coordMap, detConfigFile):
@@ -69,7 +72,7 @@ class L1000Baseline(object):
         ----------
         coordMap : dict
                  dictionary of detector locations;
-                 key by tuple (tower number, 
+                 key by tuple (tower number,
                  string number, layer number and copy number)
         detConfigFile : str, optional file name
             Depends on filled boolean, only filled geometry places
@@ -87,7 +90,7 @@ class L1000Baseline(object):
         if detConfigFile == '':  # empty file name (default)
             # make ideal crystal template
             placeholderRad    = 4.5   # [cm]
-            placeholderHeight = 11.0  # [cm]
+            placeholderHeight = 11.0  # [cm] Tube of 3.723 kg Ge
             geSolid = pg4.geant4.solid.Tubs("IGe", 0.0,
                                             placeholderRad,
                                             placeholderHeight,
@@ -95,7 +98,7 @@ class L1000Baseline(object):
             geLV    = pg4.geant4.LogicalVolume(geSolid,
                                                self.materials['enrGe'],
                                                "IGeLV", self.reg)
- 
+
             for k, pos in coordMap.items():
                 label = str(k[0])
                 ularLV = self.reg.logicalVolumeDict['ULArLV'+label]
@@ -111,14 +114,14 @@ class L1000Baseline(object):
         # Place real crystals
         placementMap = {}
 
-        # For real crystals, don't need copy number. 
+        # For real crystals, don't need copy number.
         # Unique crystals need to be placed.
         # Transfer key to place ID key (tower,string,layer).
         # tower 0..3, string 0..11, layer 0..7 currently
         for k,v in coordMap.items():
             key = (k[0],k[1],k[2])
             placementMap[key] = v
-            
+
         placementlist = []
         namelist      = []
         LVlist        = []
@@ -138,20 +141,20 @@ class L1000Baseline(object):
 
                     # store detector name from JSON file
                     namelist.append(det.getName())
-                    
+
                     # store LV's
                     LVlist.append(det.getCrystalLV())
-                    
+
             except csv.Error as e:
                 print('file {}, line {}: {}'.format(detConfigFile,
-                                                    reader.line_num, 
+                                                    reader.line_num,
                                                     e))
                 return
 
         # now place the crystals individually
         for pos, tag, lv in zip(placementlist, namelist, LVlist):
             label = str(pos[0])
-            ularLV = self.reg.logicalVolumeDict['ULArLV'+label]                
+            ularLV = self.reg.logicalVolumeDict['ULArLV'+label]
             if lv is not None:
                 pg4.geant4.PhysicalVolume([0,0,0],
                                           placementMap[pos],
@@ -161,7 +164,7 @@ class L1000Baseline(object):
                                           self.reg)
 
 
-                                        
+
     def _buildWorld(self, lngs, filled, detConfigFile):
         '''
         Build the entire geometry using module objects, see imports.
@@ -228,7 +231,7 @@ class L1000Baseline(object):
         tankLV = ltank.getTankLV()
         tankHeight = ltank.height / 100 # [m] attribute of tank
         tempMap = ltank.getDetLocMap()
-        
+
         # place the tank in cavern
         shift = -(cavernHeight-tankHeight)/2 # shift down to floor
         onfloor = [0.0, 0.0, shift*m2mm] # default units [mm]
