@@ -10,3 +10,15 @@ locations in the geometry as example.
 
 The L1000Baseline object in LegendBaseline.L1000Baseline.L1000CompleteSetup knows how to build itself, how to draw itself (see pyG4ometry's VTK dependence) and how to 
 export the geometry to GDML, suitable for a general Geant4 simulation application.
+
+## Quickstart for Development
+```console
+# Create, activate a virtualenv for local development
+$ python3 -m venv env
+$ source ./env/bin/activate
+# Create editable install with development packages
+(env) $ python3 -m pip install -e '.[all]'
+...
+# (For now) import/run to test/etc
+(env) $ python3 -c "import pylegendgeom"
+```
