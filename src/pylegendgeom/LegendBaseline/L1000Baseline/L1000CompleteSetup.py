@@ -10,9 +10,9 @@ import csv
 import pyg4ometry as pg4
 
 # Our imports
-from LegendBaseline.coaxialTemplate import icpc
-from LegendBaseline.L1000Baseline.LMaterials import LMaterials
-from LegendBaseline.L1000Baseline.LInfrastructure import LTank
+from pylegendgeom.LegendBaseline.coaxialTemplate import icpc
+from pylegendgeom.LegendBaseline.L1000Baseline.LMaterials import LMaterials
+from pylegendgeom.LegendBaseline.L1000Baseline.LInfrastructure import LTank
 
 
 class L1000Baseline():
