@@ -21,4 +21,7 @@ $ source ./env/bin/activate
 ...
 # (For now) import/run to test/etc
 (env) $ python3 -c "import pylegendgeom"
+... edit/test ...
+# Run checks before commiting
+(env) $ pre-commit run --all-files
 ```
