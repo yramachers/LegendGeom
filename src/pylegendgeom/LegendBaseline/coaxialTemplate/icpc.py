@@ -1,9 +1,6 @@
-"""
-Build the inverted coaxial point contact crystal
-template.
-
-"""
+"""Build the inverted coaxial point contact crystal template."""
 import json
+import logging
 from math import pi, tan
 
 import numpy as np
@@ -12,10 +9,8 @@ import numpy as np
 import pyg4ometry as pg4
 
 
-class detICPC:
-    """
-    Define ICPC Germanium template.
-    """
+class DetICPC:
+    """Define ICPC Germanium template."""
 
     def __init__(self, jsonfile, reg, materials):
         """
@@ -49,9 +44,9 @@ class detICPC:
         aux = pg4.gdml.Defines.Auxiliary("SensDet", "GeDet", reg)
 
         # build crystal, declare as detector
-        jsondict = self._readFromFile(jsonfile)
+        jsondict = self._read_from_file(jsonfile)
         if jsondict is not None:
-            self.crystalLV = self._buildCrystal(jsondict, reg, materials)
+            self.crystalLV = self._build_crystal(jsondict, reg, materials)
             self.crystalLV.addAuxiliaryInfo(aux)
 
     def __repr__(self):
@@ -59,7 +54,7 @@ class detICPC:
         s = "ICPC detector: build a given ICPC from JSON input file.\n"
         return s
 
-    def getCrystalLV(self):
+    def get_crystal_lv(self):
         """
         Access to logical volume as constructed here.
 
@@ -71,7 +66,7 @@ class detICPC:
         """
         return self.crystalLV
 
-    def getName(self):
+    def get_name(self):
         """
         Access to detector name from JSON file.
 
@@ -83,9 +78,9 @@ class detICPC:
         """
         return self.detname
 
-    def _readFromFile(self, jsonfile):
+    def _read_from_file(self, jsonfile):
         """
-        Internal: read the JSON file description of the crystal.
+        Create crystal from description in JSON file.
 
         Parameters
         ----------
@@ -102,14 +97,16 @@ class detICPC:
             with open(jsonfile) as jfile:
                 data = json.load(jfile)
                 self.detname = data["det_name"]  # get name first
-        except:
-            print("Error parsing JSON file.")
+        except Exception:
+            logger = logging.getLogger(__name__)
+            logger.warning("Error parsing JSON file.")
             return None
         return data["geometry"]  # only geometry data is of interest here
 
-    def _decodePolycone(self, datadict):
+    def _decode_polycone(self, datadict):
         """
-        Decode shape information from JSON file as points
+        Decode shape information from JSON file as points.
+
         constructing a G4GenericPolycone.
 
         Parameters
@@ -200,32 +197,33 @@ class detICPC:
 
         return rlist, zlist
 
-    def _buildCrystal(self, dataDict, reg, materials):
+    def _build_crystal(self, data_dict, reg, materials):
         """
-        Internal: build the crystal from JSON data dict.
+        Build the crystal from JSON.
 
         Parameters
         ----------
-        dataDict : dict
+        data_dict : dict
                 dictionary data describing crystal shape.
 
         Returns
         -------
-        geLV : pg4.geant4.LogicalVolume
+        ge_lv : pg4.geant4.LogicalVolume
             the crystal logical volume; placement in main code.
 
         """
         # return ordered r,z lists, default unit [mm]
-        rlist, zlist = self._decodePolycone(dataDict)
+        rlist, zlist = self._decode_polycone(data_dict)
 
         # build generic polycone, and logical volume, default [mm]
-        geSolid = pg4.geant4.solid.GenericPolycone("Ge", 0, 2 * pi, rlist, zlist, reg)
-        geLV = pg4.geant4.LogicalVolume(geSolid, materials["enrGe"], "GeLV", reg)
-        return geLV
+        ge_solid = pg4.geant4.solid.GenericPolycone("Ge", 0, 2 * pi, rlist, zlist, reg)
+        ge_lv = pg4.geant4.LogicalVolume(ge_solid, materials["enrGe"], "GeLV", reg)
+        return ge_lv
 
-    def drawGeometry(self):
+    def draw_geometry(self):
         """
         Draw the geometry held in the World volume.
+
         Improve/standardize colour scheme
         """
         v = pg4.visualisation.VtkViewerColoured(defaultColour="random")

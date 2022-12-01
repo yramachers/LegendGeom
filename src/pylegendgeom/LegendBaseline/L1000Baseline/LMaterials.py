@@ -1,17 +1,14 @@
-"""
-Build all materials for Legend Geometry structures.
-"""
+"""Build all materials for Legend Geometry structures."""
+
 import pyg4ometry as pg4
 
 
 class LMaterials:
-    """
-    Define all Legend Geometry materials.
-    """
+    """Define all Legend Geometry materials."""
 
     def __init__(self, reg=None):
         """
-        Build materials dictionary
+        Construct materials dictionary.
 
         Parameters
         ----------
@@ -24,11 +21,11 @@ class LMaterials:
 
         """
         self.store = {}
-        self.defineMaterials(reg)
+        self.define_materials(reg)
 
-    def getMaterialsDict(self):
+    def get_materials_dict(self):
         """
-        get hold of materials dictionary
+        Return materials dictionary.
 
         Returns
         -------
@@ -38,24 +35,11 @@ class LMaterials:
         """
         return self.store
 
-    def PrintAll(self):
+    def define_materials(self, reg):
         """
-        Print out all keys in dictionary.
+        Define all materials required to build the geometry in one place for look-up.
 
-        Returns
-        -------
-        None.
-
-        """
-        print("List of keys in Materials dictionary:")
-        for key in self.store.keys():
-            print("key: ", key)
-
-    def defineMaterials(self, reg):
-        """
-        Define all materials required to build the geometry
-        in one place for look-up. Predefined materials could be
-        avoided here but prevents use of materials commands
+        Predefined materials could be avoided here but prevents use of materials commands
         elsewhere.
 
         Parameters

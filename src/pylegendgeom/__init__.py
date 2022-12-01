@@ -1,7 +1,8 @@
 # __init__ - top level package initialization for LGeom
 #
 """
-pylegendgeom: a package to manage the LEGEND simulation geometry
+pylegendgeom: a package to manage the LEGEND simulation geometry.
+
 ================================================================
 
 Package depends on pyG4ometry and its dependencies.
@@ -19,6 +20,11 @@ Modules
     coaxialTemplate --- General co-axial Germanium crystal template to build realistic diodes.
 """
 
+import logging
+
 from ._version import version as __version__
 
 __all__ = ("__version__",)
+
+# Ensure base logger for package follows Python recommendation
+logging.getLogger(__name__).addHandler(logging.NullHandler())

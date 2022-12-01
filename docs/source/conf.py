@@ -31,7 +31,7 @@ language = "python"
 # Furo theme
 html_theme = "furo"
 html_theme_options = {
-    "source_repository": "https://github.com/yramachers/pylegendgeom",
+    "source_repository": "https://github.com/warwick-legend/pylegendgeom",
     "source_branch": "main",
     "source_directory": "docs/source",
 }

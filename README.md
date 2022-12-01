@@ -22,7 +22,7 @@ $ source ./env/bin/activate
 # (For now) import/run to test/etc
 (env) $ python3 -c "import pylegendgeom"
 ... edit/test ...
-# Run checks before commiting
+# Run checks before committing
 (env) $ pre-commit run --all-files
 # Build/Check docs
 (env) $ cd docs

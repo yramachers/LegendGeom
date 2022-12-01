@@ -13,4 +13,5 @@ github_checks:
 
 ignore:
   - tests
+  - scripts
   - docs

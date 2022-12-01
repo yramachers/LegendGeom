@@ -6,14 +6,14 @@ from pylegendgeom.LegendBaseline.L1000Baseline.LMaterials import LMaterials
 
 reg = pg4.geant4.Registry()
 lm = LMaterials(reg)
-materials = lm.getMaterialsDict()
+materials = lm.get_materials_dict()
 
 # test; assumes json file in same folder
-det = icpc.detICPC("V09372A.json", reg=reg, materials=materials)
+det = icpc.DetICPC("V09372A.json", reg=reg, materials=materials)
 
-print(det.getName())
+print(det.get_name())
 
-det.drawGeometry()
+det.draw_geometry()
 
 # plot the generic polycone data
 # lv = det.getCrystalLV()
