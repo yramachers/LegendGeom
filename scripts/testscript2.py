@@ -1,10 +1,10 @@
-"""
-test script
-"""
+"""test script."""
 # import pyg4ometry
-from pylegendgeom.LegendBaseline.L1000Baseline import L1000CompleteSetup as cs
+from pylegendgeom.LegendBaseline.L1000Baseline import L1000CompleteSetup
 
-det = cs.L1000Baseline(filled=True, detConfigFile="detectorconfig.csv")
+det = L1000CompleteSetup.L1000Baseline(
+    filled=True, det_config_file="detectorconfig.csv"
+)
 
 print("All logical volumes:")
 print(det.reg.logicalVolumeDict.keys())

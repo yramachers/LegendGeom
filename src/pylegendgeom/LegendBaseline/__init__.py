@@ -1,7 +1,8 @@
 # __init__ - top level package initialization for LegendBaseline
 #
 """
-LegendBaseline: Manage baseline LEGEND simulation geometries
+LegendBaseline: Manage baseline LEGEND simulation geometries.
+
 ============================================================
 
 Package depends on pyG4ometry and its dependencies.

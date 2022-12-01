@@ -1,7 +1,8 @@
 # __init__ - top level package initialization for LGeom
 #
 """
-pylegendgeom: a package to manage the LEGEND simulation geometry
+pylegendgeom: a package to manage the LEGEND simulation geometry.
+
 ================================================================
 
 Package depends on pyG4ometry and its dependencies.

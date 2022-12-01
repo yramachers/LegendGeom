@@ -1,5 +1,5 @@
 """
-L1000 baseline complete setup file
+L1000 baseline complete setup file.
 
 Build the complete setup of the baseline L1000 experiment.
 """
@@ -18,11 +18,9 @@ from pylegendgeom.LegendBaseline.L1000Baseline.LMaterials import LMaterials
 
 
 class L1000Baseline:
-    """
-    Define (simplified) Legend 1000 Baseline setup.
-    """
+    """Define (simplified) Legend 1000 Baseline setup."""
 
-    def __init__(self, hallA=True, filled=False, detConfigFile=""):
+    def __init__(self, hall_a=True, filled=False, det_config_file=""):
         """
         Construct L1000Baseline object and call world building.
 
@@ -52,18 +50,18 @@ class L1000Baseline:
 
         # dictionary of materials
         lm = LMaterials(self.reg)
-        lm.PrintAll()
-        self.materials = lm.getMaterialsDict()
+        lm.print_all()
+        self.materials = lm.get_materials_dict()
 
         # build the geometry
-        self._buildWorld(hallA, filled, detConfigFile)
+        self._build_world(hall_a, filled, det_config_file)
 
     def __repr__(self):
         """Print the object purpose."""
         s = "L1000 baseline object: build the complete setup.\n"
         return s
 
-    def _placeCrystals(self, coordMap, detConfigFile):
+    def _place_crystals(self, coord_map, det_config_file):
         """
         Place the Germanium crystals in template slots.
 
@@ -86,49 +84,49 @@ class L1000Baseline:
         None. Stores geometry in registry.
 
         """
-        if detConfigFile == "":  # empty file name (default)
+        if det_config_file == "":  # empty file name (default)
             # make ideal crystal template
-            placeholderRad = 4.5  # [cm]
-            placeholderHeight = 11.0  # [cm] Tube of 3.723 kg Ge
-            geSolid = pg4.geant4.solid.Tubs(
+            placeholder_rad = 4.5  # [cm]
+            placeholder_height = 11.0  # [cm] Tube of 3.723 kg Ge
+            ge_solid = pg4.geant4.solid.Tubs(
                 "IGe",
                 0.0,
-                placeholderRad,
-                placeholderHeight,
+                placeholder_rad,
+                placeholder_height,
                 0,
                 2 * pi,
                 self.reg,
                 "cm",
                 "rad",
             )
-            geLV = pg4.geant4.LogicalVolume(
-                geSolid, self.materials["enrGe"], "IGeLV", self.reg
+            ge_lv = pg4.geant4.LogicalVolume(
+                ge_solid, self.materials["enrGe"], "IGeLV", self.reg
             )
 
-            for k, pos in coordMap.items():
+            for k, pos in coord_map.items():
                 label = str(k[0])
-                ularLV = self.reg.logicalVolumeDict["ULArLV" + label]
+                ular_lv = self.reg.logicalVolumeDict["ULArLV" + label]
                 # place in the correct tower
                 pg4.geant4.PhysicalVolume(
-                    [0, 0, 0], pos, geLV, "GePV" + str(k[3]), ularLV, self.reg
+                    [0, 0, 0], pos, ge_lv, "GePV" + str(k[3]), ular_lv, self.reg
                 )
             return
 
         # Place real crystals
-        placementMap = {}
+        placement_map = {}
 
         # For real crystals, don't need copy number.
         # Unique crystals need to be placed.
         # Transfer key to place ID key (tower,string,layer).
         # tower 0..3, string 0..11, layer 0..7 currently
-        for k, v in coordMap.items():
+        for k, v in coord_map.items():
             key = (k[0], k[1], k[2])
-            placementMap[key] = v
+            placement_map[key] = v
 
         placementlist = []
         namelist = []
-        LVlist = []
-        with open(detConfigFile, newline="") as f:
+        lv_list = []
+        with open(det_config_file, newline="") as f:
             reader = csv.DictReader(f)  # this handles csv with header
             try:
                 for row in reader:
@@ -139,28 +137,28 @@ class L1000Baseline:
 
                     # get JSON file name from config file.
                     jsonfilename = row["filename"]
-                    det = icpc.detICPC(jsonfilename, self.reg, self.materials)
+                    det = icpc.DetICPC(jsonfilename, self.reg, self.materials)
 
                     # store detector name from JSON file
-                    namelist.append(det.getName())
+                    namelist.append(det.get_name())
 
                     # store LV's
-                    LVlist.append(det.getCrystalLV())
+                    lv_list.append(det.get_crystal_lv())
 
             except csv.Error as e:
-                print(f"file {detConfigFile}, line {reader.line_num}: {e}")
+                print(f"file {det_config_file}, line {reader.line_num}: {e}")
                 return
 
         # now place the crystals individually
-        for pos, tag, lv in zip(placementlist, namelist, LVlist):
+        for pos, tag, lv in zip(placementlist, namelist, lv_list):
             label = str(pos[0])
-            ularLV = self.reg.logicalVolumeDict["ULArLV" + label]
+            ular_lv = self.reg.logicalVolumeDict["ULArLV" + label]
             if lv is not None:
                 pg4.geant4.PhysicalVolume(
-                    [0, 0, 0], placementMap[pos], lv, "GePV-" + tag, ularLV, self.reg
+                    [0, 0, 0], placement_map[pos], lv, "GePV-" + tag, ular_lv, self.reg
                 )
 
-    def _buildWorld(self, lngs, filled, detConfigFile):
+    def _build_world(self, lngs, filled, det_config_file):
         """
         Build the entire geometry using module objects, see imports.
 
@@ -191,7 +189,7 @@ class L1000Baseline:
             wheight = 20.0
             wwidth = 22.0
             wlength = 102.0
-            worldSolid = pg4.geant4.solid.Box(
+            world_solid = pg4.geant4.solid.Box(
                 "ws",
                 wwidth,  # width x-axis
                 wlength,  # depth y axis
@@ -199,20 +197,20 @@ class L1000Baseline:
                 self.reg,
                 "m",
             )
-            rockSolid = pg4.geant4.solid.Box(
+            rock_solid = pg4.geant4.solid.Box(
                 "rs", wwidth - rock, wlength - rock, wheight - rock, self.reg, "m"
             )
         else:  # SNOLab cryopit
-            zeroRad = 0.0
-            outerRad = 8.0  # for a 6 m radius hall
+            zero_rad = 0.0
+            outer_rad = 8.0  # for a 6 m radius hall
             wheight = 19.0  # for a 17 m full hall height
-            worldSolid = pg4.geant4.solid.Tubs(
-                "ws", zeroRad, outerRad, wheight, 0, 2 * pi, self.reg, "m", "rad"
+            world_solid = pg4.geant4.solid.Tubs(
+                "ws", zero_rad, outer_rad, wheight, 0, 2 * pi, self.reg, "m", "rad"
             )
-            rockSolid = pg4.geant4.solid.Tubs(
+            rock_solid = pg4.geant4.solid.Tubs(
                 "rs",
-                zeroRad,
-                outerRad - rock,
+                zero_rad,
+                outer_rad - rock,
                 wheight - rock,
                 0,
                 2 * pi,
@@ -222,36 +220,39 @@ class L1000Baseline:
             )
 
         self.worldLV = pg4.geant4.LogicalVolume(
-            worldSolid, self.materials["stdrock"], "worldLV", self.reg
+            world_solid, self.materials["stdrock"], "worldLV", self.reg
         )
         # build the cavern wall and place air volume
-        cavernLV = pg4.geant4.LogicalVolume(
-            rockSolid, self.materials["air"], "cavernLV", self.reg
+        cavern_lv = pg4.geant4.LogicalVolume(
+            rock_solid, self.materials["air"], "cavernLV", self.reg
         )
         pg4.geant4.PhysicalVolume(
-            zeros, zeros, cavernLV, "cavernPV", self.worldLV, self.reg
+            zeros, zeros, cavern_lv, "cavernPV", self.worldLV, self.reg
         )
-        cavernHeight = wheight - rock
+        cavern_height = wheight - rock
 
         # build the infrastructre inside cavern
         ltank = LTank(self.reg, self.materials)
-        tankLV = ltank.getTankLV()
-        tankHeight = ltank.height / 100  # [m] attribute of tank
-        tempMap = ltank.getDetLocMap()
+        tank_lv = ltank.get_tank_lv()
+        tank_height = ltank.height / 100  # [m] attribute of tank
+        temp_map = ltank.get_det_loc_map()
 
         # place the tank in cavern
-        shift = -(cavernHeight - tankHeight) / 2  # shift down to floor
+        shift = -(cavern_height - tank_height) / 2  # shift down to floor
         onfloor = [0.0, 0.0, shift * m2mm]  # default units [mm]
-        pg4.geant4.PhysicalVolume(zeros, onfloor, tankLV, "tankPV", cavernLV, self.reg)
+        pg4.geant4.PhysicalVolume(
+            zeros, onfloor, tank_lv, "tankPV", cavern_lv, self.reg
+        )
 
         # place the crystals
         if filled:  # only for a filled infrastructure
-            self._placeCrystals(tempMap, detConfigFile)
+            self._place_crystals(temp_map, det_config_file)
 
-    def drawGeometry(self):
+    def draw_geometry(self):
         """
         Draw the geometry held in the World volume.
-        Improve/standardize colour scheme
+
+        TODO: Improve/standardize colour scheme
         """
         v = pg4.visualisation.VtkViewerColouredMaterial()
         v.addLogicalVolume(self.worldLV)
@@ -260,7 +261,7 @@ class L1000Baseline:
         v.addAxes(length=1000.0)  # 1 m axes
         v.view()
 
-    def writeGDML(self, filename):
+    def write_gdml(self, filename):
         """
         Create GDML file from stored pyg4ometry registry.
 
