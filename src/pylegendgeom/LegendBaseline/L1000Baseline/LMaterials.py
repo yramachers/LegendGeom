@@ -35,19 +35,6 @@ class LMaterials:
         """
         return self.store
 
-    def print_all(self):
-        """
-        Print out all keys in dictionary.
-
-        Returns
-        -------
-        None.
-
-        """
-        print("List of keys in Materials dictionary:")
-        for key in self.store.keys():
-            print("key: ", key)
-
     def define_materials(self, reg):
         """
         Define all materials required to build the geometry in one place for look-up.

@@ -1,5 +1,6 @@
 """Build the inverted coaxial point contact crystal template."""
 import json
+import logging
 from math import pi, tan
 
 import numpy as np
@@ -97,7 +98,8 @@ class DetICPC:
                 data = json.load(jfile)
                 self.detname = data["det_name"]  # get name first
         except Exception:
-            print("Error parsing JSON file.")
+            logger = logging.getLogger(__name__)
+            logger.warning("Error parsing JSON file.")
             return None
         return data["geometry"]  # only geometry data is of interest here
 

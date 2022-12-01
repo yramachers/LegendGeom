@@ -20,6 +20,11 @@ Modules
     coaxialTemplate --- General co-axial Germanium crystal template to build realistic diodes.
 """
 
+import logging
+
 from ._version import version as __version__
 
 __all__ = ("__version__",)
+
+# Ensure base logger for package follows Python recommendation
+logging.getLogger(__name__).addHandler(logging.NullHandler())

@@ -5,6 +5,7 @@ Build the complete setup of the baseline L1000 experiment.
 """
 
 import csv
+import logging
 
 # Third-party imports
 from math import pi
@@ -50,7 +51,6 @@ class L1000Baseline:
 
         # dictionary of materials
         lm = LMaterials(self.reg)
-        lm.print_all()
         self.materials = lm.get_materials_dict()
 
         # build the geometry
@@ -146,7 +146,8 @@ class L1000Baseline:
                     lv_list.append(det.get_crystal_lv())
 
             except csv.Error as e:
-                print(f"file {det_config_file}, line {reader.line_num}: {e}")
+                logger = logging.getLogger(__name__)
+                logger.warning(f"file {det_config_file}, line {reader.line_num}: {e}")
                 return
 
         # now place the crystals individually
