@@ -13,18 +13,8 @@
     "rec_voltage_in_V": 4500,
     "impcc": {
       "array": {
-        "value_in_1e9e/cm3": [
-          8,
-          9,
-          14,
-          23
-        ],
-        "dist_from_contact_in_mm": [
-          0,
-          50,
-          100,
-          121
-        ]
+        "value_in_1e9e/cm3": [8, 9, 14, 23],
+        "dist_from_contact_in_mm": [0, 50, 100, 121]
       },
       "function_pars": {
         "z0_in_1e10e/cm3": 0,
