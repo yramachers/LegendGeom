@@ -5,7 +5,7 @@ coverage:
   status:
     project:
       default:
-        target: 20%
+        target: 1%
     patch: false
 
 github_checks:
@@ -13,5 +13,4 @@ github_checks:
 
 ignore:
   - tests
-  - scripts
   - docs
