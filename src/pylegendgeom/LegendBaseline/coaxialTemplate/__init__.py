@@ -6,5 +6,5 @@ coaxialTemplate: Build realistic Germanium diodes of coaxial type
 
 Package depends on pyG4ometry and its dependencies.
 
-LegendGeom.LegendBaseline.coaxialTemplate
+pylegendgeom.LegendBaseline.coaxialTemplate
 '''

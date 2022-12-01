@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pyg4ometry as pg4
 
 # us
-from LegendBaseline.coaxialTemplate import icpc
-from LegendBaseline.L1000Baseline.LMaterials import LMaterials
+from pylegendgeom.LegendBaseline.coaxialTemplate import icpc
+from pylegendgeom.LegendBaseline.L1000Baseline.LMaterials import LMaterials
 
 reg  = pg4.geant4.Registry()
 lm = LMaterials(reg)
