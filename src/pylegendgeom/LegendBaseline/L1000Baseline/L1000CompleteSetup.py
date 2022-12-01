@@ -148,7 +148,7 @@ class L1000Baseline:
                     LVlist.append(det.getCrystalLV())
 
             except csv.Error as e:
-                print("file {}, line {}: {}".format(detConfigFile, reader.line_num, e))
+                print(f"file {detConfigFile}, line {reader.line_num}: {e}")
                 return
 
         # now place the crystals individually
