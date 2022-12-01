@@ -1,6 +1,6 @@
 # __init__ - top level package initialization for LegendBaseline
 #
-'''
+"""
 LegendBaseline: Manage baseline LEGEND simulation geometries
 ============================================================
 
@@ -17,4 +17,4 @@ Modules
     L200Baseline      --- L200 experiment setup modules.
     coaxialTemplate   --- General co-axial Germanium crystal template to build realistic diodes.
 
-'''
+"""
