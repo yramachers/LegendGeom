@@ -1,4 +1,5 @@
 """Build the inverted coaxial point contact crystal template."""
+
 import json
 import logging
 from math import pi, tan
