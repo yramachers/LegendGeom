@@ -1,4 +1,5 @@
 """Build infrastructure objects for Legend Geometry."""
+
 from math import cos, pi, sin
 
 import pyg4ometry as pg4
